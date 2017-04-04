@@ -1,8 +1,8 @@
-package camsink.processor;
+package camnet.server.processor;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import camsink.model.internal.Camera;
+import camnet.server.model.Camera;
 
 
 public interface ImageProcessor {
