@@ -1,4 +1,4 @@
-package camsink.model.internal;
+package camnet.server.model;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 

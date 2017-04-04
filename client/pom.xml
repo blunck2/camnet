@@ -3,8 +3,8 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   
-  <groupId>blunck2</groupId>
-  <artifactId>campublisher</artifactId>
+  <groupId>camnet</groupId>
+  <artifactId>client</artifactId>
   <version>0.0.1</version>
   
   <parent>
@@ -32,6 +32,11 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
       <version>3.0</version>
+    </dependency>
+    <dependency>
+      <groupId>camnet</groupId>
+      <artifactId>common</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
     </dependency>
   </dependencies>
   

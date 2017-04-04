@@ -1,4 +1,4 @@
-package camsink.processor;
+package camnet.server.processor;
 
 public class ImageProcessingException extends Exception {
 	public ImageProcessingException() { super(); }

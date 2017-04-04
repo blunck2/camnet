@@ -1,4 +1,4 @@
-package camsink.model.internal;
+package camnet.server.model;
 
 import java.util.List;
 import java.util.ArrayList;
