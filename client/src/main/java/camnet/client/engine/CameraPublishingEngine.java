@@ -1,11 +1,10 @@
-package campublisher.engine;
+package camnet.client.engine;
 
-import campublisher.model.internal.CameraManifest;
+import camnet.client.model.internal.Camera;
+import camnet.client.model.internal.CameraManifest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import campublisher.model.internal.Camera;
 
 import java.util.List;
 

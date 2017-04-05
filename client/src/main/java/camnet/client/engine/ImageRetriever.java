@@ -1,6 +1,6 @@
-package campublisher.engine;
+package camnet.client.engine;
 
-import campublisher.model.internal.Camera;
+import camnet.client.model.internal.Camera;
 
 import org.springframework.stereotype.Component;
 

@@ -1,10 +1,10 @@
-package campublisher.engine;
+package camnet.client.engine;
 
 import java.util.concurrent.Callable;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import campublisher.model.internal.Camera;
+import camnet.client.model.internal.Camera;
 
 
 public class ImageProducer implements Callable {

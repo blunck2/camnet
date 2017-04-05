@@ -1,4 +1,4 @@
-package campublisher.model.internal;
+package camnet.client.model.internal;
 
 import java.util.List;
 import java.util.ArrayList;

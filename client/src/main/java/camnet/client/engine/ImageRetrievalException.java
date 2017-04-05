@@ -1,4 +1,4 @@
-package campublisher.engine;
+package camnet.client.engine;
 
 public class ImageRetrievalException extends Exception {
 	public ImageRetrievalException() { super(); }

@@ -1,4 +1,4 @@
-package campublisher.engine;
+package camnet.client.engine;
 
 public class ImagePublishingException extends Exception {
 	public ImagePublishingException() { super(); }

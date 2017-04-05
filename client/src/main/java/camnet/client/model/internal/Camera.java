@@ -1,4 +1,4 @@
-package campublisher.model.internal;
+package camnet.client.model.internal;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 

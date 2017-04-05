@@ -1,4 +1,4 @@
-package campublisher.engine;
+package camnet.client.engine;
 
 public class ImageRetrievalResponse {
 	private int returnCode;
