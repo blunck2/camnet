@@ -1,25 +1,25 @@
 package camnet.client.engine;
 
-public class ImageRetrievalResponse {
+public class ImageProductionResponse {
 	private int returnCode;
 	private String message;
 	private Throwable error;
 	private byte[] image;
 	private int sleepTimeInSeconds;
 
-	public static ImageRetrievalResponse createSuccessfulImageRetrievalResponse(byte[] image, int sleepTimeInSeconds) {
-		return new ImageRetrievalResponse(0, null, null, image, sleepTimeInSeconds);
+	public static ImageProductionResponse createSuccessfulResponse(byte[] image, int sleepTimeInSeconds) {
+		return new ImageProductionResponse(0, null, null, image, sleepTimeInSeconds);
 	}
 
-	public static ImageRetrievalResponse createFailedImageRetrievalResponse(String message, Throwable error) {
-		return new ImageRetrievalResponse(1, message, error, null, 60);
+	public static ImageProductionResponse createFailedResponse(String message, Throwable error) {
+		return new ImageProductionResponse(1, message, error, null, 60);
 	}
 
-	private ImageRetrievalResponse(int returnCode,
-			 					  String message,
-			 					  Throwable error,
-								  byte[] image,
-								  int sleepTimeInSeconds) {
+	private ImageProductionResponse(int returnCode,
+			 					    String message,
+			 					    Throwable error,
+								    byte[] image,
+								    int sleepTimeInSeconds) {
 		this.returnCode = returnCode;
 		this.message = message;
 		this.error = error;

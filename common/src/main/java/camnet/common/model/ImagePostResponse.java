@@ -1,9 +1,11 @@
 package camnet.common.model;
 
+import java.io.Serializable;
+
 /**
  * The response from an image post.
  */
-public class ImagePostResponse {
+public class ImagePostResponse implements Serializable {
 	private int code;
 	private String message;
 	private int sleepTimeInSeconds;

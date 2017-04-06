@@ -13,16 +13,22 @@ public class ImageProducer implements Callable {
 	@Autowired
 	private ImageRetriever retriever;
 
+	@Autowired
+	private ImagePublisher publisher;
+
 	public ImageProducer(Camera camera) {
 		this.camera = camera;
 	}
 
-	public ImageRetrievalResponse call() {
+	public ImageProductionResponse call() {
 		try {
 			byte[] bytes = retriever.retrieveImage(camera);
-			return ImageRetrievalResponse.createSuccessfulImageRetrievalResponse(bytes, camera.getSleepTimeInSeconds());
+			publisher.publishImage(bytes, camera);
+			return ImageProductionResponse.createSuccessfulResponse(bytes, camera.getSleepTimeInSeconds());
 		} catch (ImageRetrievalException e) {
-			return ImageRetrievalResponse.createFailedImageRetrievalResponse("failed to download camera image: " + camera.getUrl(), e);
+			return ImageProductionResponse.createFailedResponse("failed to retrieve camera image: " + camera.getUrl(), e);
+		} catch (ImagePublishingException e) {
+			return ImageProductionResponse.createFailedResponse("failed to publish camera image to endpoint: " + publisher.getRestEndpoint(), e);
 		}
 	}
 }
