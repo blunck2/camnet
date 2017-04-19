@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import java.util.concurrent.*;
 
@@ -18,13 +19,14 @@ public class CameraPublishingEngine {
 	@Autowired
 	private CameraManifest manifest;
 
-	@Autowired
-	private ImagePublisher publisher;
+	private List<ScheduledImageProducer> producers;
 
 	private ScheduledExecutorService scheduler;
 
 
-	public CameraPublishingEngine() { }
+	public CameraPublishingEngine() { 
+		producers = new ArrayList<>();
+	}
 
 
 	@PostConstruct
@@ -41,7 +43,9 @@ public class CameraPublishingEngine {
 
 
 	private void startCamera(Camera camera) {
-		ImageProducer producer = new ImageProducer(camera);
+		ScheduledImageProducer producer = new ScheduledImageProducer(camera);
+		producers.add(producer);
+		producer.start();
 	}
 
 
