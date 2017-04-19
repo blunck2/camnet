@@ -11,13 +11,19 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.log4j.Logger;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+
+@Component
+@ConfigurationProperties(prefix="scheduledImageProducer")
 
 public class ScheduledImageProducer implements Runnable {
-	@Autowired
-	private ImagePublisher publisher;
+    private String restEndpoint;
 
-	@Autowired
+    private ImagePublisher publisher;
+
 	private ImageProducer producer;
 
 	private Camera camera;
@@ -30,12 +36,23 @@ public class ScheduledImageProducer implements Runnable {
 
 	private Logger logger = Logger.getLogger(ScheduledImageProducer.class);
 
+	@PostConstruct
+    public void init() {
+	    logger.info("producer null?  " + producer == null);
+        publisher = new ImagePublisher(restEndpoint, camera);
+    }
+
+    public void setRestEndpoint(String restEndpoint) { logger.info("rest endpoint set: " + restEndpoint); this.restEndpoint = restEndpoint; }
+    public String getRestEndpoint() { return restEndpoint; }
 
 	public ScheduledImageProducer(Camera camera) {
 		this.camera = camera;
 		scheduler = Executors.newScheduledThreadPool(1);
 		continueRunning = true;
+
+		producer = new ImageProducer(restEndpoint, camera);
 	}
+
 
 	public void start() {
 		int sleepTimeInSeconds = 0;
@@ -55,6 +72,19 @@ public class ScheduledImageProducer implements Runnable {
 
 
 	private int scheduleNext(int delayInSeconds) {
+
+		if (scheduler == null) {
+			logger.error("scheduler is null");
+		}
+
+		if (producer == null) {
+			logger.error("producer is null");
+		}
+
+        if (publisher == null) {
+            logger.error("publisher is null");
+        }
+
 		future = scheduler.schedule(producer, delayInSeconds, TimeUnit.SECONDS);
 		ImageProductionResponse response;
 
@@ -76,7 +106,7 @@ public class ScheduledImageProducer implements Runnable {
 
 		byte[] image = response.getImage();
 		try {
-			camera = publisher.publishImage(image, camera);
+			camera = publisher.publishImage(image);
 		} catch (ImagePublishingException e) {
 			logger.warn("failed to publish image", e);
 			return sleepTimeInSeconds;

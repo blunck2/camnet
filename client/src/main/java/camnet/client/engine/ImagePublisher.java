@@ -2,7 +2,7 @@ package camnet.client.engine;
 
 import camnet.client.model.internal.Camera;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.core.io.ByteArrayResource;
@@ -13,24 +13,28 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
+import org.apache.log4j.Logger;
 
-
-@ConfigurationProperties(prefix="imagePublisher")
+@Component
 public class ImagePublisher {
 	private String restEndpoint;
 
 	private RestTemplate template;
 
-	public ImagePublisher() {
+	private Camera camera;
+
+	private static final Logger logger = Logger.getLogger(ImagePublisher.class);
+
+
+	public ImagePublisher(String restEndpoint, Camera camera) {
 		template = new RestTemplate();
-	}	
+		this.camera = camera;
+	}
 
-
-	public void setRestEndpoint(String restEndpoint) { this.restEndpoint = restEndpoint; }
 	public String getRestEndpoint() { return restEndpoint; }
 
 
-	public Camera publishImage(byte[] image, Camera camera) throws ImagePublishingException {
+	public Camera publishImage(byte[] image) throws ImagePublishingException {
 		String cameraId = camera.getId();
 
 		String url = restEndpoint + "/image/ingest/" + cameraId;
@@ -50,6 +54,7 @@ public class ImagePublisher {
 		HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = 
 			new HttpEntity<LinkedMultiValueMap<String, Object>>(map, headers);
 
+		logger.info("url to publish to: " + url);
 		ResponseEntity<String> result = 
 			template.exchange(url, 
 							  HttpMethod.POST, 

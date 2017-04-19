@@ -2,28 +2,27 @@ package camnet.client.engine;
 
 import java.util.concurrent.Callable;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import camnet.client.model.internal.Camera;
+import org.springframework.stereotype.Service;
 
-
+@Service
 public class ImageProducer implements Callable {
 	private Camera camera;
 
-	@Autowired
 	private ImageRetriever retriever;
 
-	@Autowired
 	private ImagePublisher publisher;
 
-	public ImageProducer(Camera camera) {
+	public ImageProducer(String restEndpoint, Camera camera) {
 		this.camera = camera;
+		publisher = new ImagePublisher(restEndpoint, camera);
+		retriever = new ImageRetriever();
 	}
 
 	public ImageProductionResponse call() {
 		try {
 			byte[] bytes = retriever.retrieveImage(camera);
-			publisher.publishImage(bytes, camera);
+			publisher.publishImage(bytes);
 			return ImageProductionResponse.createSuccessfulResponse(bytes, camera.getSleepTimeInSeconds());
 		} catch (ImageRetrievalException e) {
 			return ImageProductionResponse.createFailedResponse("failed to retrieve camera image: " + camera.getUrl(), e);
