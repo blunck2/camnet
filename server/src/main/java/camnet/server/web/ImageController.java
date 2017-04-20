@@ -20,6 +20,8 @@ import java.util.List;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
+
 
 @RestController
 @RequestMapping("/image")
@@ -30,9 +32,14 @@ public class ImageController {
 	@Autowired
 	private LocalImageProcessor processor;
 
+	private Logger logger = Logger.getLogger(ImageController.class);
+
   	@PostMapping("/ingest/{id}")
   	public ImagePostResponse ingest(@RequestParam("file") MultipartFile file,
     			                    @PathVariable("id") String id) {
+
+  		logger.info("POST received for camera: " + id);
+
   		// error out if the manifest is null
   		if (manifest == null) {
   			return createServerErrorResponse(id, "null camera manifest");
