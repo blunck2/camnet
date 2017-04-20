@@ -2,10 +2,10 @@ package camnet.client.model.internal;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Collection;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+
 
 @Component
 @ConfigurationProperties(prefix="manifest")

@@ -29,6 +29,7 @@ public class ImagePublisher {
 	public ImagePublisher(String restEndpoint, Camera camera) {
 		template = new RestTemplate();
 		this.camera = camera;
+		this.restEndpoint = restEndpoint;
 	}
 
 	public String getRestEndpoint() { return restEndpoint; }
