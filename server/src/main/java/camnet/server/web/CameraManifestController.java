@@ -35,4 +35,5 @@ public class CameraManifestController {
 		return manifest.getCameraById(camera.getId());
 	}
 
+
 }

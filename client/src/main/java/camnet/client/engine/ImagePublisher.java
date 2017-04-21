@@ -13,15 +13,22 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import camnet.common.model.ImagePostResponse;
+
 import org.apache.log4j.Logger;
 
-@Component
+import java.io.IOException;
+
 public class ImagePublisher {
 	private String restEndpoint;
 
 	private RestTemplate template;
 
 	private Camera camera;
+
+	private ObjectMapper mapper;
 
 	private static final Logger logger = Logger.getLogger(ImagePublisher.class);
 
@@ -30,6 +37,7 @@ public class ImagePublisher {
 		template = new RestTemplate();
 		this.camera = camera;
 		this.restEndpoint = restEndpoint;
+		mapper = new ObjectMapper();
 	}
 
 	public String getRestEndpoint() { return restEndpoint; }
@@ -55,8 +63,9 @@ public class ImagePublisher {
 		HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = 
 			new HttpEntity<LinkedMultiValueMap<String, Object>>(map, headers);
 
-		logger.info("url to publish to: " + url);
-		ResponseEntity<String> result = 
+		logger.info("publishing image for camera: " + cameraId);
+
+		ResponseEntity<String> result =
 			template.exchange(url, 
 							  HttpMethod.POST, 
 							  requestEntity,
@@ -66,10 +75,18 @@ public class ImagePublisher {
 			throw new ImagePublishingException(result.toString());
 		}
 
-		String responseJson = result.toString();
-		System.out.println("response: " + responseJson);
+		String json = result.getBody();
 
-		// TODO: parse responseJson, extract sleepTime, set in Camera instance and return
+		ImagePostResponse response;
+		try {
+			response = mapper.readValue(json, ImagePostResponse.class);
+		} catch (IOException e) {
+			logger.error("failed to marshal response json string to object", e);
+			return camera;
+		}
+
+		camera.setSleepTimeInSeconds(response.getSleepTimeInSeconds());
+
 		return camera;
 	}
 

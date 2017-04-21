@@ -47,8 +47,12 @@ public class CameraPublishingEngine {
 
 		scheduler = Executors.newScheduledThreadPool(cameraCount);
 
-		for (Camera camera : manifest.getCameras()) {
+		List<Camera> cameras = manifest.getCameras();
+		logger.info("there are " + cameras.size() + " cameras");
+		for (Camera camera : cameras) {
+			logger.info("starting camera with id: " + camera.getId());
 			startCamera(camera);
+			logger.info("back from call to startCamera()");
 		}
 	}
 
@@ -56,8 +60,11 @@ public class CameraPublishingEngine {
 	private void startCamera(Camera camera) {
 		logger.info("instantiating new ScheduledImageProducer with restEndpoint: " + restEndpoint);
 		ScheduledImageProducer producer = new ScheduledImageProducer(camera, restEndpoint);
+		logger.info("back from constructor");
 		producers.add(producer);
+		logger.info("back from add");
 		producer.start();
+		logger.info("back from start");
 	}
 
 

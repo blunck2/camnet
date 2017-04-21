@@ -5,13 +5,17 @@ import java.util.concurrent.Callable;
 import camnet.client.model.internal.Camera;
 import org.springframework.stereotype.Service;
 
-@Service
+import org.apache.log4j.Logger;
+
+
 public class ImageProducer implements Callable {
 	private Camera camera;
 
 	private ImageRetriever retriever;
 
 	private ImagePublisher publisher;
+
+	private Logger logger = Logger.getLogger(ImageProducer.class);
 
 	public ImageProducer(String restEndpoint, Camera camera) {
 		this.camera = camera;

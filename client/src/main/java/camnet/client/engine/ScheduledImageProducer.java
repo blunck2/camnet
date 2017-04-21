@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 
-@Component
 public class ScheduledImageProducer implements Runnable {
     private ImagePublisher publisher;
 
@@ -48,10 +47,7 @@ public class ScheduledImageProducer implements Runnable {
 
 
 	public void start() {
-		int sleepTimeInSeconds = 0;
-		while (continueRunning) {
-			sleepTimeInSeconds = scheduleNext(sleepTimeInSeconds);
-		}
+	    scheduleNext(0);
 	}
 
 	public void stop() {
@@ -65,21 +61,6 @@ public class ScheduledImageProducer implements Runnable {
 
 
 	private int scheduleNext(int delayInSeconds) {
-
-	    logger.info("restEndpoint is: " + restEndpoint);
-
-		if (scheduler == null) {
-			logger.error("scheduler is null");
-		}
-
-		if (producer == null) {
-			logger.error("producer is null");
-		}
-
-        if (publisher == null) {
-            logger.error("publisher is null");
-        }
-
 		future = scheduler.schedule(producer, delayInSeconds, TimeUnit.SECONDS);
 		ImageProductionResponse response;
 
@@ -95,7 +76,7 @@ public class ScheduledImageProducer implements Runnable {
 
 		int sleepTimeInSeconds = response.getSleepTimeInSeconds();
 		if (response.getReturnCode() != 0) {
-			logger.warn("failed to retreieve image: " + response.getMessage(), response.getError());
+			logger.warn("failed to publish image: " + response.getMessage(), response.getError());
 			return sleepTimeInSeconds;
 		}
 
@@ -106,6 +87,8 @@ public class ScheduledImageProducer implements Runnable {
 			logger.warn("failed to publish image", e);
 			return sleepTimeInSeconds;
 		}
+
+		scheduler.schedule(producer, sleepTimeInSeconds, TimeUnit.SECONDS);
 
 		return sleepTimeInSeconds;
 	}
