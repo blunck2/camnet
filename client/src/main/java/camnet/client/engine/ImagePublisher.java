@@ -85,6 +85,7 @@ public class ImagePublisher {
 			return camera;
 		}
 
+		logger.info("sleep time for next retrieval: " + response.getSleepTimeInSeconds());
 		camera.setSleepTimeInSeconds(response.getSleepTimeInSeconds());
 
 		return camera;

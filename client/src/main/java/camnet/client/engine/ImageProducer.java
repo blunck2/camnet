@@ -25,8 +25,11 @@ public class ImageProducer implements Callable {
 
 	public ImageProductionResponse call() {
 		try {
+			logger.info("retrieving image...");
 			byte[] bytes = retriever.retrieveImage(camera);
+			logger.info("image retreived.  publishing...");
 			publisher.publishImage(bytes);
+			logger.info("back from publishing");
 			return ImageProductionResponse.createSuccessfulResponse(bytes, camera.getSleepTimeInSeconds());
 		} catch (ImageRetrievalException e) {
 			return ImageProductionResponse.createFailedResponse("failed to retrieve camera image: " + camera.getUrl(), e);
