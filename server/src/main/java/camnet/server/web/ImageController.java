@@ -39,6 +39,7 @@ public class ImageController {
     			                    @PathVariable("id") String id) {
 
   		logger.info("POST received for camera: " + id);
+  		logger.info("manifest hashCode: " + manifest.hashCode());
 
   		// error out if the manifest is null
   		if (manifest == null) {
@@ -71,7 +72,8 @@ public class ImageController {
 	  	ImagePostResponse response = new ImagePostResponse();
   		response.setCode(0);
   		response.setMessage("wrote image: " + byteCount + " bytes");
-  		response.setSleepTimeInSeconds(60);
+  		logger.info("sleep time for camera " + camera.getId() + ": " + camera.getSleepTimeInSeconds());
+  		response.setSleepTimeInSeconds(camera.getSleepTimeInSeconds());
 
     	return response;
   	}

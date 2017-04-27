@@ -28,15 +28,17 @@ public class CameraPublishingEngine {
 	@Value("${CameraPublishingEngine.restEndpoint}")
 	private String restEndpoint;
 
-	private List<Runnable> producers;
+	private List<Runnable> retrievers;
 
 	private ScheduledExecutorService scheduler;
+
+	private ImagePublisher publisher;
 
 	private Logger logger = Logger.getLogger(CameraPublishingEngine.class);
 
 
-	public CameraPublishingEngine() { 
-		producers = new ArrayList<>();
+	public CameraPublishingEngine() {
+		retrievers = new ArrayList<>();
 	}
 
 	public void setRestEndpoint(String restEndpoint) { logger.info("rest endpoint set: " + restEndpoint); this.restEndpoint = restEndpoint; }
@@ -45,6 +47,8 @@ public class CameraPublishingEngine {
 
 	@PostConstruct
 	public void init() {
+		publisher = new ImagePublisher(restEndpoint);
+
 		List<Camera> allCameras = manifest.getCameras();
 		int cameraCount = allCameras.size();
 
@@ -64,12 +68,12 @@ public class CameraPublishingEngine {
 
 	private void startCamera(Camera camera) {
 		logger.info("instantiating new ScheduledImageProducer with restEndpoint: " + restEndpoint);
-		Runnable producer = new ScheduledImageProducer(scheduler, camera, restEndpoint);
+		Runnable retriever = new ScheduledImageRetriever(scheduler, camera, publisher);
 		logger.info("back from constructor.  constructing thread");
-		Thread t = new Thread(producer);
+		Thread t = new Thread(retriever);
 		logger.info("starting producer");
 		t.start();
-		producers.add(producer);
+		retrievers.add(retriever);
 		logger.info("back from add");
 	}
 

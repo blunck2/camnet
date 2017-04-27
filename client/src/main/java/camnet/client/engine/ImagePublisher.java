@@ -33,9 +33,8 @@ public class ImagePublisher {
 	private static final Logger logger = Logger.getLogger(ImagePublisher.class);
 
 
-	public ImagePublisher(String restEndpoint, Camera camera) {
+	public ImagePublisher(String restEndpoint) {
 		template = new RestTemplate();
-		this.camera = camera;
 		this.restEndpoint = restEndpoint;
 		mapper = new ObjectMapper();
 	}
@@ -43,7 +42,7 @@ public class ImagePublisher {
 	public String getRestEndpoint() { return restEndpoint; }
 
 
-	public Camera publishImage(byte[] image) throws ImagePublishingException {
+	public Camera publishImage(Camera camera, byte[] image) throws ImagePublishingException {
 		String cameraId = camera.getId();
 
 		String url = restEndpoint + "/image/ingest/" + cameraId;

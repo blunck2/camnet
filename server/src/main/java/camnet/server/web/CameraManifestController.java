@@ -1,5 +1,6 @@
 package camnet.server.web;
 
+import org.apache.log4j.Logger;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,18 +20,22 @@ public class CameraManifestController {
 	@Autowired
 	private CameraManifest manifest;
 
-  	@RequestMapping("/cameras")
+	private Logger logger = Logger.getLogger(ImageController.class);
+
+	@RequestMapping("/cameras")
   	public List<Camera> getAllCameras() {
   		return manifest.getCameras();
   	}
 
   	@RequestMapping("/cameras/{id}")
   	public Camera getCameraById(@PathVariable("id") String id) {
-  		return manifest.getCameraById(id);
+  		logger.info("retrieving camera with id: " + id);
+		return manifest.getCameraById(id);
   	}
 
 	@PostMapping("/cameras")
 	public Camera setCameraById(@RequestBody Camera camera) {
+  		logger.info("manifest hashCode: " + manifest.hashCode());
 		manifest.addCamera(camera);
 		return manifest.getCameraById(camera.getId());
 	}

@@ -7,10 +7,16 @@ import java.util.Collection;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import org.apache.log4j.Logger;
+
+
 @Component
 @ConfigurationProperties(prefix="manifest")
 public class CameraManifest {
 	private List<Camera> cameras;
+
+	private Logger logger = Logger.getLogger(CameraManifest.class);
+
 
 	public CameraManifest() { cameras = new ArrayList<>(); }
 
@@ -29,12 +35,18 @@ public class CameraManifest {
   	}
 
   	public void removeCameraById(String id) {
+		logger.info("looking for camera");
   		Camera existing = getCameraById(id);
+  		logger.info("is camera null? " + existing);
+  		logger.info("pre-remove size: " + cameras.size());
   		cameras.remove(existing);
+  		logger.info("post-remove size: " + cameras.size());
   	}
 
   	public void addCamera(Camera camera) {
+		logger.info("removing camera with id: " + camera.getId());
   		removeCameraById(camera.getId());
+  		logger.info("adding camera");
   		cameras.add(camera);
   	}
 

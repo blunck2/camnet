@@ -12,10 +12,14 @@ import java.net.MalformedURLException;
 
 
 
-@Component
 public class ImageRetriever {
+	private Camera camera;
 
-	public byte[] retrieveImage(Camera camera) throws ImageRetrievalException {
+	public ImageRetriever(Camera camera) {
+		this.camera = camera;
+	}
+
+	public byte[] retrieveImage() throws ImageRetrievalException {
 		URL url;
 		try {
 			url = new URL(camera.getUrl());
