@@ -7,6 +7,8 @@ public class Camera {
 	private String id;
 	private String houseName;
 	private String url;
+	private String userName;
+	private String password;
 	private int sleepTimeInSeconds;
 
 	public String getId() { return id; }
@@ -20,6 +22,12 @@ public class Camera {
 
 	public int getSleepTimeInSeconds() { return sleepTimeInSeconds; }
 	public void setSleepTimeInSeconds(int sleepTimeInSeconds) { this.sleepTimeInSeconds = sleepTimeInSeconds; }
+
+	public String getUserName() { return userName; }
+	public void setUserName(String userName) { this.userName = userName; }
+
+	public String getPassword() { return password; }
+	public void setPassword(String password) { this.password = password; }
 
 	@Override public boolean equals(Object obj) {
    		if (obj == null) { return false; }
@@ -35,6 +43,8 @@ public class Camera {
             	    .append(id, rhs.id)
 					.append(houseName, rhs.houseName)
             	    .append(url, rhs.url)
+					.append(userName, rhs.userName)
+					.append(password, rhs.password)
                  	.append(sleepTimeInSeconds, rhs.sleepTimeInSeconds)
                  	.isEquals();
         return isEquals;
