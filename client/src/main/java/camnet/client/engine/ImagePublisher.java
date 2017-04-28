@@ -62,8 +62,6 @@ public class ImagePublisher {
 		HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = 
 			new HttpEntity<LinkedMultiValueMap<String, Object>>(map, headers);
 
-		logger.info("publishing image for camera: " + cameraId);
-
 		ResponseEntity<String> result =
 			template.exchange(url, 
 							  HttpMethod.POST, 
@@ -83,8 +81,6 @@ public class ImagePublisher {
 			logger.error("failed to marshal response json string to object", e);
 			return camera;
 		}
-
-		logger.info("sleep time for next retrieval: " + response.getSleepTimeInSeconds());
 		camera.setSleepTimeInSeconds(response.getSleepTimeInSeconds());
 
 		return camera;

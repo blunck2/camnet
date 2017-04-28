@@ -48,24 +48,40 @@ public class ScheduledImageRetriever implements Runnable {
 	public void run() {
 		ImageProductionResponse response;
 
-		logger.info("getting image...");
+		logger.info("retrieving and publishing image for camera: " + camera.getId());
+
 		byte[] image = null;
 		try {
 			image = retriever.retrieveImage();
-
 		} catch (ImageRetrievalException e) {
 			logger.error("failed to retrieve image", e);
 			scheduleNext(DEFAULT_WAIT_TIME_FOR_ERRORS_IN_SECONDS, TimeUnit.SECONDS);
+			return;
+		} catch (Throwable t) {
+			logger.error("unanticipated error occurred while retrieving image", t);
+			scheduleNext(DEFAULT_WAIT_TIME_FOR_ERRORS_IN_SECONDS, TimeUnit.SECONDS);
+			return;
 		}
 
+		int oldSleepTimeInSeconds = camera.getSleepTimeInSeconds();
 		try {
 			camera = publisher.publishImage(camera, image);
 		} catch (ImagePublishingException e) {
 			logger.error("failed to publish image", e);
 			scheduleNext(DEFAULT_WAIT_TIME_FOR_ERRORS_IN_SECONDS, TimeUnit.SECONDS);
+			return;
+		} catch (Throwable t) {
+			logger.error("unanticipated error occurred while publishing image", t);
+			scheduleNext(DEFAULT_WAIT_TIME_FOR_ERRORS_IN_SECONDS, TimeUnit.SECONDS);
+			return;
 		}
 
-		logger.info("sleeping for " + camera.getSleepTimeInSeconds() + " seconds before next run");
+		int newSleepTimeInSeconds = camera.getSleepTimeInSeconds();
+		if (oldSleepTimeInSeconds != newSleepTimeInSeconds) {
+			logger.info("sleep time changed for '" + camera.getId() + "' camera: " +
+					oldSleepTimeInSeconds + "s -> " + newSleepTimeInSeconds + "s");
+		}
+
 		scheduleNext(camera.getSleepTimeInSeconds(), TimeUnit.SECONDS);
 	}
 
