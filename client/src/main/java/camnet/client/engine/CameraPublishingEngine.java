@@ -3,9 +3,12 @@ package camnet.client.engine;
 import camnet.client.model.internal.Camera;
 import camnet.client.model.internal.CameraManifest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -18,6 +21,7 @@ import javax.annotation.PostConstruct;
 import org.apache.log4j.Logger;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import org.springframework.web.client.RestTemplate;
 
 
 @Component
@@ -28,28 +32,64 @@ public class CameraPublishingEngine {
 	@Value("${CameraPublishingEngine.restEndpoint}")
 	private String restEndpoint;
 
+	@Value("#{'${CameraPublishingEngine.houses}'.split(',')}")
+	private List<String> houses;
+
+
 	private List<Runnable> retrievers;
 
 	private ScheduledExecutorService scheduler;
 
 	private ImagePublisher publisher;
 
+	private RestTemplate template;
+
+	private ObjectMapper mapper;
+
 	private Logger logger = Logger.getLogger(CameraPublishingEngine.class);
 
 
 	public CameraPublishingEngine() {
+		template = new RestTemplate();
 		retrievers = new ArrayList<>();
 	}
 
 	public void setRestEndpoint(String restEndpoint) { this.restEndpoint = restEndpoint; }
 	public String getRestEndpoint() { return restEndpoint; }
 
+	public void setHouses(List<String> houses) { this.houses = houses; }
+	public List<String> getHouses() { return houses; }
+
+	private List<Camera> getCamerasForHouse(String house) {
+		String url = restEndpoint + "/manifest/cameras/house/" + house;
+		logger.info("retrieving camera manifests from: " + url);
+		ResponseEntity<Camera[]> responseEntity = template.getForEntity(url, Camera[].class);
+		List<Camera> cameras = new ArrayList<>();
+		for (Camera camera : responseEntity.getBody()) {
+			cameras.add(camera);
+		}
+
+		return cameras;
+	}
 
 	@PostConstruct
 	public void init() {
 		publisher = new ImagePublisher(restEndpoint);
 
-		List<Camera> allCameras = manifest.getCameras();
+		List<Camera> allCameras = new ArrayList<>();
+
+		for (String house : houses) {
+			logger.info("getting cameras for house: " + house);
+			List<Camera> cameras = getCamerasForHouse(house);
+			logger.info("retrieved " + cameras.size() + " cameras");
+			allCameras.addAll(cameras);
+		}
+
+
+		manifest.setCameras(allCameras);
+
+
+
 		int cameraCount = allCameras.size();
 
 		ThreadFactoryBuilder builder = new ThreadFactoryBuilder().setNameFormat("img-producer-%d");
@@ -59,7 +99,7 @@ public class CameraPublishingEngine {
 		List<Camera> cameras = manifest.getCameras();
 		logger.info("there are " + cameras.size() + " cameras to poll and publish");
 		for (Camera camera : cameras) {
-			logger.info("starting camera with id: " + camera.getId());
+			logger.info("starting camera: " + camera.getHouseName() + "/" + camera.getId());
 			startCamera(camera);
 		}
 	}

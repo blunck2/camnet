@@ -5,6 +5,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 
 public class Camera {
 	private String id;
+	private String fileName;
 	private String houseName;
 	private String url;
 	private String userName;
@@ -13,6 +14,9 @@ public class Camera {
 
 	public String getId() { return id; }
 	public void setId(String id) { this.id = id; }
+
+	public String getFileName() { return fileName; }
+	public void setFileName(String fileName) { this.fileName= fileName; }
 
 	public String getHouseName() { return houseName; }
 	public void setHouseName(String houseName) { this.houseName = houseName; }

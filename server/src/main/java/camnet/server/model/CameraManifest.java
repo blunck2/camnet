@@ -44,4 +44,16 @@ public class CameraManifest {
   		cameras.add(camera);
   	}
 
+  	public List<Camera> getCamerasByHouseName(String houseName) {
+		List<Camera> camerasToReturn = new ArrayList<>();
+
+		for (Camera camera : cameras) {
+			if (camera.getHouseName().equals(houseName)) {
+				camerasToReturn.add(camera);
+			}
+		}
+
+		return camerasToReturn;
+	}
+
 }

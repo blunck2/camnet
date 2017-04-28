@@ -48,7 +48,7 @@ public class ScheduledImageRetriever implements Runnable {
 	public void run() {
 		ImageProductionResponse response;
 
-		logger.info("retrieving and publishing image for camera: " + camera.getId());
+		logger.info("retrieving and publishing image: " + camera.getHouseName() + "/" + camera.getId());
 
 		byte[] image = null;
 		try {

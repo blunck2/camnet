@@ -27,6 +27,11 @@ public class CameraManifestController {
   		return manifest.getCameras();
   	}
 
+	@RequestMapping("/cameras/house/{houseName}")
+	public List<Camera> getCamerasByHouseName(@PathVariable("houseName") String houseName) {
+		return manifest.getCamerasByHouseName(houseName);
+	}
+
   	@RequestMapping("/cameras/house/{houseName}/camera/{cameraId}")
   	public Camera getCameraById(@PathVariable("houseName") String houseName,
 								  @PathVariable("cameraId") String cameraId) {
