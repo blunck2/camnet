@@ -78,7 +78,7 @@ public class ScheduledImageRetriever implements Runnable {
 
 		int newSleepTimeInSeconds = camera.getSleepTimeInSeconds();
 		if (oldSleepTimeInSeconds != newSleepTimeInSeconds) {
-			logger.info("sleep time changed for '" + camera.getId() + "' camera: " +
+			logger.info("sleep time changed for '" + camera.getHouseName() + "/" + camera.getId() + "' camera: " +
 					oldSleepTimeInSeconds + "s -> " + newSleepTimeInSeconds + "s");
 		}
 

@@ -33,6 +33,18 @@ public class CameraManifestController {
 		return manifest.getCameraById(houseName, cameraId);
   	}
 
+	@PostMapping("/cameras/house/{houseName}/camera/{cameraId}/sleepTimeInSeconds/{sleepTimeInSeconds}")
+	public Camera getCameraById(@PathVariable("houseName") String houseName,
+								@PathVariable("cameraId") String cameraId,
+								@PathVariable("sleepTimeInSeconds") Integer sleepTimeInSeconds) {
+		Camera camera = manifest.getCameraById(houseName, cameraId);
+		int oldSleepTimeInSeconds = camera.getSleepTimeInSeconds();
+		logger.info("sleep time changed for '" + houseName + "/" + cameraId + "' camera: " +
+				oldSleepTimeInSeconds + "s -> " + sleepTimeInSeconds + "s");
+		camera.setSleepTimeInSeconds(sleepTimeInSeconds);
+		return camera;
+	}
+
 	@PostMapping("/cameras")
 	public Camera setCameraById(@RequestBody Camera camera) {
 		manifest.addCamera(camera);

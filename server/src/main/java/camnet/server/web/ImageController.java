@@ -39,7 +39,7 @@ public class ImageController {
     			                    @PathVariable("houseName") String houseName,
     			                    @PathVariable("cameraId") String cameraId) {
 
-  		logger.info("POST received from camera: " + houseName + "/" + cameraId);
+  		logger.info("incoming image: " + houseName + "/" + cameraId);
 
   		// error out if the manifest is null
   		if (manifest == null) {
