@@ -27,17 +27,16 @@ public class CameraManifestController {
   		return manifest.getCameras();
   	}
 
-  	@RequestMapping("/cameras/{id}")
-  	public Camera getCameraById(@PathVariable("id") String id) {
-  		logger.info("retrieving camera with id: " + id);
-		return manifest.getCameraById(id);
+  	@RequestMapping("/cameras/house/{houseName}/camera/{cameraId}")
+  	public Camera getCameraById(@PathVariable("houseName") String houseName,
+								  @PathVariable("cameraId") String cameraId) {
+		return manifest.getCameraById(houseName, cameraId);
   	}
 
 	@PostMapping("/cameras")
 	public Camera setCameraById(@RequestBody Camera camera) {
-  		logger.info("manifest hashCode: " + manifest.hashCode());
 		manifest.addCamera(camera);
-		return manifest.getCameraById(camera.getId());
+		return manifest.getCameraById(camera.getHouseName(), camera.getId());
 	}
 
 

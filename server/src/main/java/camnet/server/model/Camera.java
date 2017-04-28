@@ -8,6 +8,9 @@ public class Camera {
 	private String fileName;
 	private String houseName;
 	private String cameraName;
+	private String url;
+	private String userName;
+	private String password;
 	private int sleepTimeInSeconds;
 
 	public String getId() { return id; }
@@ -21,6 +24,15 @@ public class Camera {
 
 	public String getCameraName() { return cameraName; }
 	public void setCameraName(String cameraName) { this.cameraName = cameraName; }
+
+	public String getUrl() { return url; }
+	public void setUrl(String url) { this.url = url; }
+
+	public String getUserName() { return userName; }
+	public void setUserName(String userName) { this.userName = userName; }
+
+	public String getPassword() { return password; }
+	public void setPassword(String password) { this.password = password; }
 
 	public int getSleepTimeInSeconds() { return sleepTimeInSeconds; }
 	public void setSleepTimeInSeconds(int sleepTimeInSeconds) { this.sleepTimeInSeconds = sleepTimeInSeconds; }
@@ -40,6 +52,9 @@ public class Camera {
                 	.append(fileName, rhs.fileName)
                  	.append(houseName, rhs.houseName)
                  	.append(cameraName, rhs.cameraName)
+					.append(url, rhs.url)
+					.append(userName, rhs.userName)
+					.append(password, rhs.password)
                  	.append(sleepTimeInSeconds, rhs.sleepTimeInSeconds)
                  	.isEquals();
         return isEquals;

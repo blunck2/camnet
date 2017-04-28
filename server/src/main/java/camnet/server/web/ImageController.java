@@ -34,27 +34,28 @@ public class ImageController {
 
 	private Logger logger = Logger.getLogger(ImageController.class);
 
-  	@PostMapping("/ingest/{id}")
+  	@PostMapping("/ingest/house/{houseName}/camera/{cameraId}")
   	public ImagePostResponse ingest(@RequestParam("file") MultipartFile file,
-    			                    @PathVariable("id") String id) {
+    			                    @PathVariable("houseName") String houseName,
+    			                    @PathVariable("cameraId") String cameraId) {
 
-  		logger.info("POST received for camera: " + id);
-  		logger.info("manifest hashCode: " + manifest.hashCode());
+  		logger.info("POST received from camera: " + houseName + "/" + cameraId);
 
   		// error out if the manifest is null
   		if (manifest == null) {
-  			return createServerErrorResponse(id, "null camera manifest");
+  			return createServerErrorResponse("null camera manifest");
   		}
 
   		// error out if the processor is null
   		if (processor == null) {
-  			return createServerErrorResponse(id, "null processor");
+  			return createServerErrorResponse("null processor");
   		}
 
   		// error out if the camera has not been defined
-  		Camera camera = manifest.getCameraById(id);
+  		Camera camera = manifest.getCameraById(houseName, cameraId);
   		if (camera == null) {
-  			return createServerErrorResponse(id, "camera id '" + id + "' not found");
+  			return createServerErrorResponse("house name '" + houseName + "' and camera id '" +
+					cameraId + "' not found");
   		}
 
   		int byteCount = 0;
@@ -72,14 +73,13 @@ public class ImageController {
 	  	ImagePostResponse response = new ImagePostResponse();
   		response.setCode(0);
   		response.setMessage("wrote image: " + byteCount + " bytes");
-  		logger.info("sleep time for camera " + camera.getId() + ": " + camera.getSleepTimeInSeconds());
   		response.setSleepTimeInSeconds(camera.getSleepTimeInSeconds());
 
     	return response;
   	}
 
 
-  	private ImagePostResponse createServerErrorResponse(String id, String message) {
+  	private ImagePostResponse createServerErrorResponse(String message) {
   		ImagePostResponse response = new ImagePostResponse();
   		response.setCode(1);
   		response.setMessage("server error occurred: " + message);

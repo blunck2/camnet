@@ -24,9 +24,9 @@ public class CameraManifest {
 
 	public void setCameras(List<Camera> cameras) { this.cameras = cameras; }
  
-  	public Camera getCameraById(String id) {
+  	public Camera getCameraById(String houseName, String id) {
   		for (Camera camera : getCameras()) {
-  			if (id.equals(camera.getId())) {
+  			if (houseName.equals(camera.getHouseName()) && id.equals(camera.getId())) {
   				return camera;
   			}
   		}
@@ -34,19 +34,13 @@ public class CameraManifest {
   		return null;
   	}
 
-  	public void removeCameraById(String id) {
-		logger.info("looking for camera");
-  		Camera existing = getCameraById(id);
-  		logger.info("is camera null? " + existing);
-  		logger.info("pre-remove size: " + cameras.size());
+  	public void removeCameraById(String houseName, String id) {
+  		Camera existing = getCameraById(houseName, id);
   		cameras.remove(existing);
-  		logger.info("post-remove size: " + cameras.size());
   	}
 
   	public void addCamera(Camera camera) {
-		logger.info("removing camera with id: " + camera.getId());
-  		removeCameraById(camera.getId());
-  		logger.info("adding camera");
+ 		removeCameraById(camera.getHouseName(), camera.getId());
   		cameras.add(camera);
   	}
 

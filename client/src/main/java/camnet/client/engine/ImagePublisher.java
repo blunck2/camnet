@@ -43,9 +43,10 @@ public class ImagePublisher {
 
 
 	public Camera publishImage(Camera camera, byte[] image) throws ImagePublishingException {
+		String houseName = camera.getHouseName();
 		String cameraId = camera.getId();
 
-		String url = restEndpoint + "/image/ingest/" + cameraId;
+		String url = restEndpoint + "/image/ingest/house/" + houseName + "/camera/" + cameraId;
 
 		LinkedMultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
 		ByteArrayResource bar = new ByteArrayResource(image) {
