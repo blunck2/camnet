@@ -42,7 +42,6 @@ public class CameraManifest {
   	}
 
   	public void addCamera(Camera camera) {
-		logger.info("addCamera called");
   		removeCameraById(camera.getId());
   		cameras.add(camera);
   	}
