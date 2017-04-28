@@ -39,8 +39,11 @@ public class CameraManifestController {
 								@PathVariable("sleepTimeInSeconds") Integer sleepTimeInSeconds) {
 		Camera camera = manifest.getCameraById(houseName, cameraId);
 		int oldSleepTimeInSeconds = camera.getSleepTimeInSeconds();
-		logger.info("sleep time changed for '" + houseName + "/" + cameraId + "' camera: " +
-				oldSleepTimeInSeconds + "s -> " + sleepTimeInSeconds + "s");
+		if (oldSleepTimeInSeconds != sleepTimeInSeconds) {
+			logger.info("sleep time changed for '" + houseName + "/" + cameraId + "' camera: " +
+					oldSleepTimeInSeconds + "s -> " + sleepTimeInSeconds + "s");
+		}
+
 		camera.setSleepTimeInSeconds(sleepTimeInSeconds);
 		return camera;
 	}
