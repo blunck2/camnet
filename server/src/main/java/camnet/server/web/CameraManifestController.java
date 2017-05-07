@@ -53,10 +53,16 @@ public class CameraManifestController {
 		return camera;
 	}
 
-	@PostMapping("/cameras")
-	public Camera setCameraById(@RequestBody Camera camera) {
+	@PostMapping("/camera/{cameraId}")
+	public Camera setCameraById(@PathVariable("cameraId") String cameraId,
+								@RequestBody Camera camera) {
 		manifest.addCamera(camera);
 		return manifest.getCameraById(camera.getHouseName(), camera.getId());
+	}
+
+	@PostMapping("/cameras")
+	public void setAllCameras(@RequestBody List<Camera> cameras) {
+		manifest.setCameras(cameras);
 	}
 
 

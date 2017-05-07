@@ -1,6 +1,14 @@
 To run server:
-  mvn clean install
-  java -jar target/camsink-0.0.1.jar
+  Compile and Run:
+    mvn clean install
+    java -jar target/camsink-0.0.1.jar
+  Load Configuration
+    cp src/main/resources/config/allCamerasManifest.json .
+    vi allCamerasManifest.json
+    // add usernames/passwords where appropriate
+    cd src/main/scripts
+    ./loadCameraManifest.sh
+
 
 To post:
   curl  -F "file=@/Users/chris/command.txt" -F "id=cam1" http://localhost:8080/api/ingest

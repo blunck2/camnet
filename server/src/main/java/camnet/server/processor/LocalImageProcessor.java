@@ -2,6 +2,7 @@ package camnet.server.processor;
 
 import camnet.server.model.Camera;
 
+import org.apache.log4j.Logger;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,9 @@ import java.io.FileOutputStream;
 @Component
 @ConfigurationProperties(prefix="imageProcessor")
 public class LocalImageProcessor implements ImageProcessor {
+
+	private static final Logger logger = Logger.getLogger(LocalImageProcessor.class);
+
 
 	private String rootImageDirectory;
 
@@ -49,8 +53,7 @@ public class LocalImageProcessor implements ImageProcessor {
   		outputFileStream.write(bytes);
   		outputFileStream.close();
   	} catch (Exception e) {
-  		e.printStackTrace(System.out);
-  		throw new ImageProcessingException("failed to write file '" + fileName + "': " + e.getMessage());
+  		logger.error("failed to write file: " + fileName, e);
   	}
 
   	return byteCount;
