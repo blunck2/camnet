@@ -1,5 +1,6 @@
 package camnet.server.web;
 
+import camnet.server.processor.S3ImageProcessor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,11 +16,6 @@ import camnet.common.model.ImagePostResponse;
 import camnet.server.model.CameraManifest;
 import camnet.server.model.Camera;
 
-import java.util.List;
-
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.log4j.Logger;
 
 
@@ -30,7 +26,10 @@ public class ImageController {
 	private CameraManifest manifest;
 
 	@Autowired
-	private LocalImageProcessor processor;
+	private LocalImageProcessor localImageProcessor;
+
+	@Autowired
+	private S3ImageProcessor s3ImageProcessor;
 
 	private Logger logger = Logger.getLogger(ImageController.class);
 
@@ -38,29 +37,30 @@ public class ImageController {
   	public ImagePostResponse ingest(@RequestParam("file") MultipartFile file,
     			                    @PathVariable("houseName") String houseName,
     			                    @PathVariable("cameraId") String cameraId) {
+		logger.info("incoming image: " + houseName + "/" + cameraId);
 
-  		logger.info("incoming image: " + houseName + "/" + cameraId);
+		// error out if the manifest is null
+		if (manifest == null) {
+			return createServerErrorResponse("null camera manifest");
+		}
 
-  		// error out if the manifest is null
-  		if (manifest == null) {
-  			return createServerErrorResponse("null camera manifest");
-  		}
+		// error out if the localImageProcessor is null
+		if (localImageProcessor == null) {
+			return createServerErrorResponse("null localImageProcessor");
+		}
 
-  		// error out if the processor is null
-  		if (processor == null) {
-  			return createServerErrorResponse("null processor");
-  		}
-
-  		// error out if the camera has not been defined
-  		Camera camera = manifest.getCameraById(houseName, cameraId);
-  		if (camera == null) {
-  			return createServerErrorResponse("house name '" + houseName + "' and camera id '" +
+		// error out if the camera has not been defined
+		Camera camera = manifest.getCameraById(houseName, cameraId);
+		if (camera == null) {
+			return createServerErrorResponse("house name '" + houseName + "' and camera id '" +
 					cameraId + "' not found");
-  		}
+		}
 
-  		int byteCount = 0;
-  		try {
-  			byteCount = processor.processImage(camera, file);
+
+		int byteCount = 0;
+		try {
+			byteCount = localImageProcessor.processImage(camera, file);
+  			s3ImageProcessor.processImage(camera, file);
   		} catch (ImageProcessingException e) {
 		  	ImagePostResponse response = new ImagePostResponse();
   			response.setCode(1);

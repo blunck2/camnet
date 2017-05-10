@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.http.client.support.BasicAuthorizationInterceptor;
 import org.springframework.stereotype.Component;
 import org.springframework.http.ResponseEntity;
 
@@ -32,6 +33,12 @@ public class CameraPublishingEngine {
 	@Value("${CameraPublishingEngine.restEndpoint}")
 	private String restEndpoint;
 
+	@Value("${CameraPublishingEngine.userName}")
+	private String userName;
+
+	@Value("${CameraPublishingEngine.passWord}")
+	private String passWord;
+
 	@Value("#{'${CameraPublishingEngine.houses}'.split(',')}")
 	private List<String> houses;
 
@@ -54,8 +61,30 @@ public class CameraPublishingEngine {
 		retrievers = new ArrayList<>();
 	}
 
-	public void setRestEndpoint(String restEndpoint) { this.restEndpoint = restEndpoint; }
-	public String getRestEndpoint() { return restEndpoint; }
+	public void setRestEndpoint(String restEndpoint) {
+		this.restEndpoint = restEndpoint;
+	}
+
+	public String getRestEndpoint() {
+		return restEndpoint;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getPassWord() {
+		return passWord;
+	}
+
+	public void setPassWord(String passWord) {
+		this.passWord = passWord;
+	}
+
 
 	public void setHouses(List<String> houses) { this.houses = houses; }
 	public List<String> getHouses() { return houses; }
@@ -63,6 +92,7 @@ public class CameraPublishingEngine {
 	private List<Camera> getCamerasForHouse(String house) {
 		String url = restEndpoint + "/manifest/cameras/house/" + house;
 		logger.info("retrieving camera manifests from: " + url);
+		template.getInterceptors().add(new BasicAuthorizationInterceptor(this.userName, this.passWord));
 		ResponseEntity<Camera[]> responseEntity = template.getForEntity(url, Camera[].class);
 		List<Camera> cameras = new ArrayList<>();
 		for (Camera camera : responseEntity.getBody()) {
@@ -74,7 +104,7 @@ public class CameraPublishingEngine {
 
 	@PostConstruct
 	public void init() {
-		publisher = new ImagePublisher(restEndpoint);
+		publisher = new ImagePublisher(restEndpoint, userName, passWord);
 
 		List<Camera> allCameras = new ArrayList<>();
 

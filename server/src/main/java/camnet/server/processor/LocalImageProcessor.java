@@ -11,7 +11,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 @Component
-@ConfigurationProperties(prefix="imageProcessor")
+@ConfigurationProperties(prefix="localImageProcessor")
 public class LocalImageProcessor implements ImageProcessor {
 
 	private static final Logger logger = Logger.getLogger(LocalImageProcessor.class);
@@ -29,34 +29,34 @@ public class LocalImageProcessor implements ImageProcessor {
 
 
 	public int processImage(Camera camera, MultipartFile image) throws ImageProcessingException {
-  	String baseName = camera.getFileName();
-  	String houseNameLowerCase = camera.getHouseName().toLowerCase();
-  	String dirName = rootImageDirectory + "/" + houseNameLowerCase;
+  		String baseName = camera.getFileName();
+  		String houseNameLowerCase = camera.getHouseName().toLowerCase();
+  		String dirName = rootImageDirectory + "/" + houseNameLowerCase;
 
 		// create the base directory
-  	File baseDirectory = new File(dirName);
-  	baseDirectory.mkdirs();
+	  	File baseDirectory = new File(dirName);
+  		baseDirectory.mkdirs();
 
 		// error out if we can't write to the target filename
-  	String fileName = dirName + "/" + baseName;
-  	File outputFile = new File(fileName);
-  	if (outputFile.exists() && (! outputFile.canWrite())) {
-  		throw new ImageProcessingException("unable to write to file: " + fileName);
-  	}
+	  	String fileName = dirName + "/" + baseName;
+	  	logger.info("writing to: " + fileName);
+  		File outputFile = new File(fileName);
+  		if (outputFile.exists() && (! outputFile.canWrite())) {
+  			throw new ImageProcessingException("unable to write to file: " + fileName);
+  		}
 
-  	// write the input file to the output file
-  	int byteCount = 0;
-  	try {
-	  	FileOutputStream outputFileStream = new FileOutputStream(outputFile);
-  		byte[] bytes = image.getBytes();
-  		byteCount = bytes.length;
-  		outputFileStream.write(bytes);
-  		outputFileStream.close();
-  	} catch (Exception e) {
-  		logger.error("failed to write file: " + fileName, e);
-  	}
+  		// write the input file to the output file
+  		int byteCount = 0;
+  		try {
+	  		FileOutputStream outputFileStream = new FileOutputStream(outputFile);
+  			byte[] bytes = image.getBytes();
+  			byteCount = bytes.length;
+  			outputFileStream.write(bytes);
+  			outputFileStream.close();
+  		} catch (Exception e) {
+  			logger.error("failed to write file: " + fileName, e);
+  		}
 
-  	return byteCount;
-
+	  	return byteCount;
 	}
 }

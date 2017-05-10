@@ -2,6 +2,7 @@ package camnet.client.engine;
 
 import camnet.client.model.internal.Camera;
 
+import org.springframework.http.client.support.BasicAuthorizationInterceptor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -23,6 +24,8 @@ import java.io.IOException;
 
 public class ImagePublisher {
 	private String restEndpoint;
+	private String userName;
+	private String password;
 
 	private RestTemplate template;
 
@@ -33,9 +36,13 @@ public class ImagePublisher {
 	private static final Logger logger = Logger.getLogger(ImagePublisher.class);
 
 
-	public ImagePublisher(String restEndpoint) {
-		template = new RestTemplate();
+	public ImagePublisher(String restEndpoint, String userName, String password) {
 		this.restEndpoint = restEndpoint;
+		this.userName = userName;
+		this.password = password;
+
+		template = new RestTemplate();
+		template.getInterceptors().add(new BasicAuthorizationInterceptor(this.userName, this.password));
 		mapper = new ObjectMapper();
 	}
 
