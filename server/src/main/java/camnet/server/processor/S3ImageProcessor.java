@@ -88,6 +88,7 @@ public class S3ImageProcessor implements ImageProcessor {
 
             logger.info("uploading to: " + getBucketName() + "/" + objectId);
             client.putObject(getBucketName(), objectId, stream, metadata);
+            logger.info("back from call");
         } catch (Throwable t) {
             throw new ImageProcessingException("failed to send to s3", t);
         }

@@ -62,6 +62,8 @@ public class ImageController {
 			byteCount = localImageProcessor.processImage(camera, file);
   			s3ImageProcessor.processImage(camera, file);
   		} catch (ImageProcessingException e) {
+			logger.error("error occurred processing image", e);
+
 		  	ImagePostResponse response = new ImagePostResponse();
   			response.setCode(1);
   			response.setMessage(e.getMessage());
