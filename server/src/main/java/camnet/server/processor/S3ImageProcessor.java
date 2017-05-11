@@ -75,6 +75,7 @@ public class S3ImageProcessor implements ImageProcessor {
     public void init() {
         AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
         client = new AmazonS3Client(credentials);
+        client.setEndpoint(serviceEndpoint);
     }
 
     public int processImage(Camera camera, MultipartFile image) throws ImageProcessingException {
@@ -88,7 +89,6 @@ public class S3ImageProcessor implements ImageProcessor {
 
             logger.info("uploading to: " + getBucketName() + "/" + objectId);
             client.putObject(getBucketName(), objectId, stream, metadata);
-            logger.info("back from call");
         } catch (Throwable t) {
             throw new ImageProcessingException("failed to send to s3", t);
         }

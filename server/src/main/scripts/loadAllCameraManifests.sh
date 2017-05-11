@@ -1,5 +1,5 @@
-#!/bin/sh
+#!/bin/sh -x
 
 CAMERAS_MANIFEST=../../../allCamerasManifest.json
 
-curl -X POST -u admin:admin --data @${CAMERAS_MANIFEST} --header "Content-Type:application/json" http://localhost:8181/api/manifest/cameras
+curl -vv -X POST -u admin:admin --data @${CAMERAS_MANIFEST} --header "Content-Type:application/json" http://localhost:8181/api/manifest/cameras

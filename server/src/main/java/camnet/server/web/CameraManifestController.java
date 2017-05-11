@@ -63,6 +63,7 @@ public class CameraManifestController {
 	@PostMapping("/cameras")
 	public void setAllCameras(@RequestBody List<Camera> cameras) {
 		manifest.setCameras(cameras);
+		logger.info("loaded " + cameras.size() + " cameras.");
 	}
 
 
