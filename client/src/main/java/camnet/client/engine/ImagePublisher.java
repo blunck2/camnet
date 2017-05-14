@@ -2,6 +2,7 @@ package camnet.client.engine;
 
 import camnet.client.model.internal.Camera;
 
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.support.BasicAuthorizationInterceptor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -21,6 +22,10 @@ import camnet.common.model.ImagePostResponse;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class ImagePublisher {
 	private String restEndpoint;
@@ -42,14 +47,18 @@ public class ImagePublisher {
 		this.password = password;
 
 		template = new RestTemplate();
-		template.getInterceptors().add(new BasicAuthorizationInterceptor(this.userName, this.password));
+		ClientHttpRequestInterceptor loggingRequestInterceptor = new LoggingRequestInterceptor();
+		List<ClientHttpRequestInterceptor> requestInterceptors = new ArrayList<>();
+		requestInterceptors.add(loggingRequestInterceptor);
+		requestInterceptors.add(new BasicAuthorizationInterceptor(this.userName, this.password));
+		template.setInterceptors(requestInterceptors);
 		mapper = new ObjectMapper();
 	}
 
 	public String getRestEndpoint() { return restEndpoint; }
 
 
-	public Camera publishImage(Camera camera, byte[] image) throws ImagePublishingException {
+ 	public Camera publishImage(Camera camera, byte[] image, Map<String, String> sourceImageHeaders) throws ImagePublishingException {
 		String houseName = camera.getHouseName();
 		String cameraId = camera.getId();
 
@@ -59,10 +68,13 @@ public class ImagePublisher {
 		ByteArrayResource bar = new ByteArrayResource(image) {
         	@Override
         	public String getFilename() {
-            	return "Camera-" + cameraId + "-size-" + image.length + ".jpg";
+            	return "Camera-" + cameraId + ".jpg";
         	}
     	};
 		map.add("file", bar);
+		//map.add("contentType", sourceImageHeaders.get("Content-Type"));
+
+		//logger.info("my map: " + map.toString());
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -70,27 +82,31 @@ public class ImagePublisher {
 		HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = 
 			new HttpEntity<LinkedMultiValueMap<String, Object>>(map, headers);
 
+		logger.trace(camera.getDisplayName() + " POSTing image");
 		ResponseEntity<String> result =
 			template.exchange(url, 
 							  HttpMethod.POST, 
 							  requestEntity,
                     		  String.class);
+		logger.trace(camera.getDisplayName() + " back from POST");
 
 		if (result.getStatusCode() != HttpStatus.OK) {
+			logger.trace(camera.getDisplayName() + " http status code was not 200");
 			throw new ImagePublishingException(result.toString());
 		}
 
 		String json = result.getBody();
 
-		ImagePostResponse response;
+		ImagePostResponse response = null;
 		try {
 			response = mapper.readValue(json, ImagePostResponse.class);
 		} catch (IOException e) {
-			logger.error("failed to marshal response json string to object", e);
-			return camera;
+			throw new ImagePublishingException("failed to publish image", e);
+		} catch (Throwable t) {
+			throw new ImagePublishingException("failed to publish image", t);
 		}
-		camera.setSleepTimeInSeconds(response.getSleepTimeInSeconds());
 
+		camera.setSleepTimeInSeconds(response.getSleepTimeInSeconds());
 		return camera;
 	}
 

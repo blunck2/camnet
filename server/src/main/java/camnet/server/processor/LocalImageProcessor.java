@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Map;
 
 @Component
 @ConfigurationProperties(prefix="localImageProcessor")
@@ -28,7 +29,7 @@ public class LocalImageProcessor implements ImageProcessor {
 	public String getRootImageDirectory() { return rootImageDirectory; }
 
 
-	public int processImage(Camera camera, MultipartFile image) throws ImageProcessingException {
+	public int processImage(Camera camera, MultipartFile image, Map<String, String> imageHeaders) throws ImageProcessingException {
   		String baseName = camera.getFileName();
   		String houseNameLowerCase = camera.getHouseName().toLowerCase();
   		String dirName = rootImageDirectory + "/" + houseNameLowerCase;

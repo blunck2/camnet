@@ -3,7 +3,7 @@ package camnet.server.processor;
 
 import camnet.server.model.Camera;
 import com.amazonaws.AmazonWebServiceClient;
-import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
 import org.apache.log4j.Logger;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -12,11 +12,12 @@ import org.springframework.stereotype.Component;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.PutObjectResult;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
 import java.io.ByteArrayInputStream;
+
+import java.util.Map;
 
 
 @Component
@@ -78,17 +79,29 @@ public class S3ImageProcessor implements ImageProcessor {
         client.setEndpoint(serviceEndpoint);
     }
 
-    public int processImage(Camera camera, MultipartFile image) throws ImageProcessingException {
+    public int processImage(Camera camera, MultipartFile image, Map<String, String> imageHeaders) throws ImageProcessingException {
         String objectId = camera.getHouseName() + "-" + camera.getId();
         byte[] bytes;
         try {
             bytes = IOUtils.toByteArray(image.getInputStream());
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(bytes.length);
+            String contentType = imageHeaders.get("contentType");
+            metadata.setContentType(contentType);
+            metadata.setContentDisposition(camera.getHouseName() + "-" + camera.getId());
             ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
 
+            AccessControlList acl = new AccessControlList();
+            acl.grantPermission(GroupGrantee.AllUsers, Permission.Read);
+
             logger.info("uploading to: " + getBucketName() + "/" + objectId);
-            client.putObject(getBucketName(), objectId, stream, metadata);
+            PutObjectRequest request = new PutObjectRequest(getBucketName(), objectId, stream, metadata);
+            request.withAccessControlList(acl);
+
+            client.putObject(request);
+
+            String url = client.getResourceUrl(getBucketName(), objectId);
+            logger.trace("url: " + url);
         } catch (Throwable t) {
             throw new ImageProcessingException("failed to send to s3", t);
         }

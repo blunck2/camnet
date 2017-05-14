@@ -18,6 +18,9 @@ import camnet.server.model.Camera;
 
 import org.apache.log4j.Logger;
 
+import java.util.Map;
+import java.util.HashMap;
+
 
 @RestController
 @RequestMapping("/image")
@@ -35,8 +38,8 @@ public class ImageController {
 
   	@PostMapping("/ingest/house/{houseName}/camera/{cameraId}")
   	public ImagePostResponse ingest(@RequestParam("file") MultipartFile file,
-    			                    @PathVariable("houseName") String houseName,
-    			                    @PathVariable("cameraId") String cameraId) {
+									  @PathVariable("houseName") String houseName,
+									  @PathVariable("cameraId") String cameraId) {
 		logger.info("incoming image: " + houseName + "/" + cameraId);
 
 		// error out if the manifest is null
@@ -56,11 +59,13 @@ public class ImageController {
 					cameraId + "' not found");
 		}
 
+		Map<String, String> fileHeaders = new HashMap<>();
+		fileHeaders.put("contentType", "image/jpeg");
 
 		int byteCount = 0;
 		try {
-			byteCount = localImageProcessor.processImage(camera, file);
-  			s3ImageProcessor.processImage(camera, file);
+			byteCount = localImageProcessor.processImage(camera, file, fileHeaders);
+  			s3ImageProcessor.processImage(camera, file, fileHeaders);
   		} catch (ImageProcessingException e) {
 			logger.error("error occurred processing image", e);
 

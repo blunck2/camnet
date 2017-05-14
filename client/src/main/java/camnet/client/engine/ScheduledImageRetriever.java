@@ -4,6 +4,7 @@ import java.util.List;
 
 import camnet.client.model.internal.Camera;
 
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.Executors;
@@ -51,8 +52,12 @@ public class ScheduledImageRetriever implements Runnable {
 		logger.info("retrieving and publishing image: " + camera.getHouseName() + "/" + camera.getId());
 
 		byte[] image = null;
+		Map<String, String> headers;
+		ImageRetrievalResponse imageRetrievalResponse;
 		try {
-			image = retriever.retrieveImage();
+			imageRetrievalResponse = retriever.retrieveImage();
+			image = imageRetrievalResponse.getContent();
+			headers = imageRetrievalResponse.getHeaders();
 		} catch (ImageRetrievalException e) {
 			logger.error("failed to retrieve image", e);
 			scheduleNext(DEFAULT_WAIT_TIME_FOR_ERRORS_IN_SECONDS, TimeUnit.SECONDS);
@@ -65,7 +70,9 @@ public class ScheduledImageRetriever implements Runnable {
 
 		int oldSleepTimeInSeconds = camera.getSleepTimeInSeconds();
 		try {
-			camera = publisher.publishImage(camera, image);
+			logger.trace(camera.getDisplayName() + " uploading image");
+			camera = publisher.publishImage(camera, image, headers);
+			logger.trace(camera.getDisplayName() + " image uploaded");
 		} catch (ImagePublishingException e) {
 			logger.error("failed to publish image", e);
 			scheduleNext(DEFAULT_WAIT_TIME_FOR_ERRORS_IN_SECONDS, TimeUnit.SECONDS);
@@ -82,11 +89,14 @@ public class ScheduledImageRetriever implements Runnable {
 					oldSleepTimeInSeconds + "s -> " + newSleepTimeInSeconds + "s");
 		}
 
+		logger.trace(camera.getDisplayName() + " sleeping for " + camera.getSleepTimeInSeconds() + " seconds");
 		scheduleNext(camera.getSleepTimeInSeconds(), TimeUnit.SECONDS);
 	}
 
 	private void scheduleNext(int sleepTime, TimeUnit unit) {
+		logger.trace(camera.getDisplayName() + " scheduling for delayed execution in seconds: " + sleepTime);
 		scheduler.schedule(this, sleepTime, unit);
+		logger.trace(camera.getDisplayName() + " back from call to schedule");
 	}
 
 
