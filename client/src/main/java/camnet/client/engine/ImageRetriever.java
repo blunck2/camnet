@@ -7,6 +7,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -15,6 +16,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 
 import java.awt.*;
@@ -27,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-
+import org.springframework.web.client.RestTemplate;
 
 
 public class ImageRetriever {
@@ -44,6 +46,15 @@ public class ImageRetriever {
 		this.camera = camera;
 		logger.trace(camera.getDisplayName() + " url: " + camera.getUrl());
 
+		RequestConfig.Builder requestConfigBuilder = RequestConfig.custom();
+		requestConfigBuilder =
+				requestConfigBuilder.setConnectTimeout(2000)
+				.setConnectionRequestTimeout(2000)
+				.setSocketTimeout(2000);
+
+		HttpClientBuilder builder = HttpClientBuilder.create();
+		builder.setDefaultRequestConfig(requestConfigBuilder.build());
+
 		if ((camera.getUserName() != null) && (camera.getPassword() != null)) {
 			String username = camera.getUserName();
 			String password = camera.getPassword();
@@ -51,11 +62,11 @@ public class ImageRetriever {
 			logger.trace(camera.getDisplayName() + " username/password: " + username + "/" + password);
 			CredentialsProvider provider = new BasicCredentialsProvider();
 			provider.setCredentials(AuthScope.ANY, credentials);
-			client = HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
 
-		} else {
-			client = HttpClients.createDefault();
+			builder.setDefaultCredentialsProvider(provider).build();
 		}
+
+		client = builder.build();
 
 		httpGet = new HttpGet(camera.getUrl());
 	}
@@ -84,8 +95,11 @@ public class ImageRetriever {
 			CloseableHttpResponse response = client.execute(httpGet);
 			logger.trace(camera.getDisplayName() + " received response");
 			valuableHeaders = extractValuableHeaders(response);
+			logger.trace(camera.getDisplayName() + " extracted headers.  count: " + valuableHeaders.keySet().size());
 
+			logger.trace(camera.getDisplayName() + " getting http entity");
 			HttpEntity entity = response.getEntity();
+			logger.trace(camera.getDisplayName() + " reading bytes");
 			bytes = EntityUtils.toByteArray(entity);
 			logger.trace(camera.getDisplayName() + " " + bytes.length + " bytes received.");
 		} catch (Throwable e) {
