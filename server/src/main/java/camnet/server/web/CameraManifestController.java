@@ -24,12 +24,14 @@ public class CameraManifestController {
 
 	@RequestMapping("/cameras")
   	public List<Camera> getAllCameras() {
-  		return manifest.getCameras();
+  		return manifest.getAllCameras();
   	}
 
 	@RequestMapping("/cameras/house/{houseName}")
 	public List<Camera> getCamerasByHouseName(@PathVariable("houseName") String houseName) {
-		return manifest.getCamerasByHouseName(houseName);
+
+		List<Camera> response = manifest.getCamerasByHouseName(houseName);
+		return response;
 	}
 
   	@RequestMapping("/cameras/house/{houseName}/camera/{cameraId}")
@@ -39,9 +41,9 @@ public class CameraManifestController {
   	}
 
 	@PostMapping("/cameras/house/{houseName}/camera/{cameraId}/sleepTimeInSeconds/{sleepTimeInSeconds}")
-	public Camera getCameraById(@PathVariable("houseName") String houseName,
-								@PathVariable("cameraId") String cameraId,
-								@PathVariable("sleepTimeInSeconds") Integer sleepTimeInSeconds) {
+	public Camera setCameraBySleepTimeInSeconds(@PathVariable("houseName") String houseName,
+												@PathVariable("cameraId") String cameraId,
+												@PathVariable("sleepTimeInSeconds") Integer sleepTimeInSeconds) {
 		Camera camera = manifest.getCameraById(houseName, cameraId);
 		int oldSleepTimeInSeconds = camera.getSleepTimeInSeconds();
 		if (oldSleepTimeInSeconds != sleepTimeInSeconds) {
@@ -53,8 +55,9 @@ public class CameraManifestController {
 		return camera;
 	}
 
-	@PostMapping("/camera/{cameraId}")
-	public Camera setCameraById(@PathVariable("cameraId") String cameraId,
+	@PostMapping("/cameras/house/{houseName}/camera/{cameraId}")
+	public Camera setCameraById(@PathVariable("houseName") String houseName,
+								@PathVariable("cameraId") String cameraId,
 								@RequestBody Camera camera) {
 		manifest.addCamera(camera);
 		return manifest.getCameraById(camera.getHouseName(), camera.getId());
@@ -62,8 +65,13 @@ public class CameraManifestController {
 
 	@PostMapping("/cameras")
 	public void setAllCameras(@RequestBody List<Camera> cameras) {
-		manifest.setCameras(cameras);
-		logger.info("loaded " + cameras.size() + " cameras.");
+		for (Camera camera : cameras) {
+			String houseName = camera.getHouseName();
+			String cameraId = camera.getId();
+			setCameraById(houseName, cameraId, camera);
+			logger.info("loading camera: " + houseName + "/" + cameraId);
+		}
+		logger.info("camera manifest size: " + manifest.getAllCameras().size());
 	}
 
 

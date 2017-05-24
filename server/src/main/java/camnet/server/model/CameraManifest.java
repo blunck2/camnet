@@ -3,6 +3,10 @@ package camnet.server.model;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -13,20 +17,24 @@ import org.apache.log4j.Logger;
 @Component
 @ConfigurationProperties(prefix="manifest")
 public class CameraManifest {
-	private List<Camera> cameras;
+	private Map<String, List<Camera>> cameras;
 
 	private Logger logger = Logger.getLogger(CameraManifest.class);
 
 
-	public CameraManifest() { cameras = new ArrayList<>(); }
+	public CameraManifest() { cameras = new HashMap<>(); }
 
-	public List<Camera> getCameras() { return cameras; }
+	public Map<String, List<Camera>> getCameras() {
+		return cameras;
+	}
 
-	public void setCameras(List<Camera> cameras) { this.cameras = cameras; }
+	public void setCameras(Map<String, List<Camera>> cameras) {
+		this.cameras = cameras;
+	}
  
   	public Camera getCameraById(String houseName, String id) {
-  		for (Camera camera : getCameras()) {
-  			if (houseName.equals(camera.getHouseName()) && id.equals(camera.getId())) {
+  		for (Camera camera : getCamerasForHouse(houseName)) {
+  			if (id.equals(camera.getId())) {
   				return camera;
   			}
   		}
@@ -34,26 +42,58 @@ public class CameraManifest {
   		return null;
   	}
 
+  	public List<Camera> getCamerasForHouse(String houseName) {
+		return cameras.get(houseName);
+	}
+
   	public void removeCameraById(String houseName, String id) {
-  		Camera existing = getCameraById(houseName, id);
-  		cameras.remove(existing);
+		if (! cameras.keySet().contains(houseName)) { return; }
+
+  		List<Camera> camerasForHouse = cameras.get(houseName);
+
+		for (Iterator<Camera> iter = camerasForHouse.listIterator(); iter.hasNext();) {
+			Camera camera = iter.next();
+			if (camera.getId().equals(id)) {
+				iter.remove();
+			}
+		}
   	}
+
+  	public Set<String> getHouseNames() {
+		return cameras.keySet();
+	}
 
   	public void addCamera(Camera camera) {
- 		removeCameraById(camera.getHouseName(), camera.getId());
-  		cameras.add(camera);
-  	}
+		String houseName = camera.getHouseName();
+ 		removeCameraById(houseName, camera.getId());
 
-  	public List<Camera> getCamerasByHouseName(String houseName) {
-		List<Camera> camerasToReturn = new ArrayList<>();
+ 		List<Camera> existingCameras = cameras.get(houseName);
+ 		if (existingCameras == null) {
+ 			existingCameras = new ArrayList<>();
+ 			cameras.put(houseName, existingCameras);
+		}
 
-		for (Camera camera : cameras) {
-			if (camera.getHouseName().equals(houseName)) {
-				camerasToReturn.add(camera);
+ 		for (Camera existing : existingCameras) {
+ 			if (existing.getId() == camera.getId()) {
+ 				throw new IllegalArgumentException("camera already exists");
 			}
 		}
 
-		return camerasToReturn;
+ 		existingCameras.add(camera);
+  	}
+
+  	public List<Camera> getCamerasByHouseName(String houseName) {
+		return cameras.get(houseName);
 	}
 
+	public List<Camera> getAllCameras() {
+		List<Camera> allCameras = new ArrayList<>();
+
+		for (String houseName : cameras.keySet()) {
+			List<Camera> houseCameras = cameras.get(houseName);
+			allCameras.addAll(houseCameras);
+		}
+
+		return allCameras;
+	}
 }
