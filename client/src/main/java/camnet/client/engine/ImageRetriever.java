@@ -15,7 +15,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Logger;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +27,9 @@ import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import org.springframework.web.client.RestTemplate;
 
 
@@ -37,7 +38,7 @@ public class ImageRetriever {
 	private CloseableHttpClient client;
 	private HttpGet httpGet;
 
-	private static final Logger logger = Logger.getLogger(ImageRetriever.class);
+	private static final Logger logger = LogManager.getLogger();
 
 	private static final String[] VALUABLE_HEADERS = new String[] { "Content-type" };
 

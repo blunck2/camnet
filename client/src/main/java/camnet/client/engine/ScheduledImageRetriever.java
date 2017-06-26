@@ -11,7 +11,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ExecutionException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -30,7 +32,7 @@ public class ScheduledImageRetriever implements Runnable {
 
 	private boolean continueRunning;
 
-	private Logger logger = Logger.getLogger(ScheduledImageRetriever.class);
+	private Logger logger = LogManager.getLogger();
 
 	private static final int DEFAULT_WAIT_TIME_FOR_ERRORS_IN_SECONDS = 60;
 

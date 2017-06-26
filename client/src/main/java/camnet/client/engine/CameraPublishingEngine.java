@@ -19,7 +19,8 @@ import java.lang.Runnable;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.springframework.web.client.RestTemplate;
@@ -30,8 +31,11 @@ public class CameraPublishingEngine {
 	@Autowired
 	private CameraManifest manifest;
 
-	@Value("${CameraPublishingEngine.restEndpoint}")
-	private String restEndpoint;
+	@Value("${CameraPublishingEngine.configurationRestEndpoint}")
+	private String configurationRestEndpoint;
+
+	@Value("${CameraPublishingEngine.mediaRestEndpoint}")
+	private String mediaRestEndpoint;
 
 	@Value("${CameraPublishingEngine.userName}")
 	private String userName;
@@ -53,7 +57,7 @@ public class CameraPublishingEngine {
 
 	private ObjectMapper mapper;
 
-	private Logger logger = Logger.getLogger(CameraPublishingEngine.class);
+	private Logger logger = LogManager.getLogger();
 
 
 	public CameraPublishingEngine() {
@@ -61,12 +65,20 @@ public class CameraPublishingEngine {
 		retrievers = new ArrayList<>();
 	}
 
-	public void setRestEndpoint(String restEndpoint) {
-		this.restEndpoint = restEndpoint;
+	public void setConfigurationRestEndpoint(String restEndpoint) {
+		this.configurationRestEndpoint = restEndpoint;
 	}
 
-	public String getRestEndpoint() {
-		return restEndpoint;
+	public String getConfigurationRestEndpoint() {
+		return configurationRestEndpoint;
+	}
+
+	public void setMediaRestEndpoint(String restEndpoint) {
+		this.mediaRestEndpoint = restEndpoint;
+	}
+
+	public String getMediaRestEndpoint() {
+		return mediaRestEndpoint;
 	}
 
 	public String getUserName() {
@@ -90,8 +102,8 @@ public class CameraPublishingEngine {
 	public List<String> getHouses() { return houses; }
 
 	private List<Camera> getCamerasForHouse(String house) {
-		String url = restEndpoint + "/manifest/cameras/house/" + house;
-		logger.info("retrieving camera manifests from: " + url);
+		String url = configurationRestEndpoint + "/manifest/cameras/house/" + house;
+		logger.trace("retrieving camera manifests from: " + url);
 		template.getInterceptors().add(new BasicAuthorizationInterceptor(this.userName, this.passWord));
 		ResponseEntity<Camera[]> responseEntity = template.getForEntity(url, Camera[].class);
 		List<Camera> cameras = new ArrayList<>();
@@ -104,7 +116,7 @@ public class CameraPublishingEngine {
 
 	@PostConstruct
 	public void init() {
-		publisher = new ImagePublisher(restEndpoint, userName, passWord);
+		publisher = new ImagePublisher(mediaRestEndpoint, userName, passWord);
 
 		List<Camera> allCameras = new ArrayList<>();
 

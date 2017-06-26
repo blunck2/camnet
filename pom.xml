@@ -5,13 +5,19 @@
 
   <groupId>camnet</groupId>
   <artifactId>camnet</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
-  	<module>common</module>
-  	<module>server</module>
+  	<module>model</module>
+  	<module>config-server</module>
+    <module>media-server</module>
   	<module>client</module>
   </modules>
 
+
+  <properties>
+    <java.version>1.8</java.version>
+    <spring.security.version>4.2.2.RELEASE</spring.security.version>
+  </properties>
 </project>

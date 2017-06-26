@@ -17,9 +17,10 @@ import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import camnet.common.model.ImagePostResponse;
+import camnet.model.ImagePostResponse;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 
@@ -38,7 +39,7 @@ public class ImagePublisher {
 
 	private ObjectMapper mapper;
 
-	private static final Logger logger = Logger.getLogger(ImagePublisher.class);
+	private static final Logger logger = LogManager.getLogger();
 
 
 	public ImagePublisher(String restEndpoint, String userName, String password) {

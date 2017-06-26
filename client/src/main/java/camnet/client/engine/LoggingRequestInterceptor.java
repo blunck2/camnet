@@ -1,6 +1,8 @@
 package camnet.client.engine;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -10,7 +12,7 @@ import java.io.IOException;
 
 public class LoggingRequestInterceptor implements ClientHttpRequestInterceptor {
 
-    private static final Logger logger = Logger.getLogger(ImageRetriever.class);
+    private static final Logger logger = LogManager.getLogger();
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
