@@ -37,11 +37,17 @@ public class CameraPublishingEngine {
 	@Value("${CameraPublishingEngine.mediaRestEndpoint}")
 	private String mediaRestEndpoint;
 
-	@Value("${CameraPublishingEngine.userName}")
-	private String userName;
+	@Value("${CameraPublishingEngine.configurationUserName}")
+	private String configurationUserName;
 
-	@Value("${CameraPublishingEngine.passWord}")
-	private String passWord;
+	@Value("${CameraPublishingEngine.configurationPassWord}")
+	private String configurationPassWord;
+
+	@Value("${CameraPublishingEngine.mediaUserName}")
+	private String mediaUserName;
+
+	@Value("${CameraPublishingEngine.mediaPassWord}")
+	private String mediaPassWord;
 
 	@Value("#{'${CameraPublishingEngine.houses}'.split(',')}")
 	private List<String> houses;
@@ -81,22 +87,37 @@ public class CameraPublishingEngine {
 		return mediaRestEndpoint;
 	}
 
-	public String getUserName() {
-		return userName;
+	public String getConfigurationUserName() {
+		return configurationUserName;
 	}
 
-	public void setUserName(String userName) {
-		this.userName = userName;
+	public void setConfigurationUserName(String userName) {
+		this.configurationUserName = userName;
 	}
 
-	public String getPassWord() {
-		return passWord;
+	public String getConfigurationPassWord() {
+		return configurationPassWord;
 	}
 
-	public void setPassWord(String passWord) {
-		this.passWord = passWord;
+	public void setConfigurationPassWord(String passWord) {
+		this.configurationPassWord = passWord;
 	}
 
+	public String getMediaUserName() {
+		return mediaUserName;
+	}
+
+	public void setMediaUserName(String userName) {
+		this.mediaUserName = userName;
+	}
+
+	public String getMediaPassWord() {
+		return mediaPassWord;
+	}
+
+	public void setMediaPassWord(String passWord) {
+		this.mediaPassWord = passWord;
+	}
 
 	public void setHouses(List<String> houses) { this.houses = houses; }
 	public List<String> getHouses() { return houses; }
@@ -104,7 +125,7 @@ public class CameraPublishingEngine {
 	private List<Camera> getCamerasForHouse(String house) {
 		String url = configurationRestEndpoint + "/manifest/cameras/house/" + house;
 		logger.info("***************************** retrieving camera manifests from: " + url);
-		template.getInterceptors().add(new BasicAuthorizationInterceptor(this.userName, this.passWord));
+		template.getInterceptors().add(new BasicAuthorizationInterceptor(this.configurationUserName, this.configurationPassWord));
 		ResponseEntity<Camera[]> responseEntity = template.getForEntity(url, Camera[].class);
 		List<Camera> cameras = new ArrayList<>();
 		for (Camera camera : responseEntity.getBody()) {
@@ -116,7 +137,7 @@ public class CameraPublishingEngine {
 
 	@PostConstruct
 	public void init() {
-		publisher = new ImagePublisher(mediaRestEndpoint, userName, passWord);
+		publisher = new ImagePublisher(mediaRestEndpoint, mediaUserName, mediaPassWord);
 
 		List<Camera> allCameras = new ArrayList<>();
 

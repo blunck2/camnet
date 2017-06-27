@@ -37,6 +37,8 @@ import java.util.HashMap;
 @ConfigurationProperties("imageController")
 public class ImageController {
 	private String configurationServerUrl;
+	private String configurationServerUserName;
+	private String configurationServerPassWord;
 
 	private CameraManifest manifest;
 
@@ -52,7 +54,7 @@ public class ImageController {
 
 	@PostConstruct
 	public void setUp() {
-		loadManifest();
+		loadCameraManifest();
 	}
 
 	public String getConfigurationServerUrl() {
@@ -63,11 +65,26 @@ public class ImageController {
 		this.configurationServerUrl = configurationServerUrl;
 	}
 
+	public String getConfigurationServerUserName() {
+		return configurationServerUserName;
+	}
+
+	public void setConfigurationServerUserName(String userName) {
+		this.configurationServerUserName = userName;
+	}
+
+	public String getConfigurationServerPassword() {
+		return configurationServerPassWord;
+	}
+
+	public void setConfigurationServerPassWord(String passWord) {
+		this.configurationServerPassWord = passWord;
+	}
 
 	/**
 	 * Retrieves the camera manifest from the configuration server
 	 */
-	private void loadManifest() {
+	private void loadCameraManifest() {
 		manifest = new CameraManifest();
 
 		configServer = new RestTemplate();
@@ -79,21 +96,6 @@ public class ImageController {
 		}
 
 		logger.trace("camera configurations loaded.  house names: " + manifest.getHouseNames());
-	}
-
-
-	private Camera parse(Map raw) {
-		Camera cooked = new Camera();
-
-		cooked.setId((String) raw.get("id"));
-		cooked.setHouseName((String) raw.get("houseName"));
-		cooked.setCameraName((String) raw.get("cameraName"));
-		cooked.setUrl((String) raw.get("url"));
-		cooked.setUserName((String) raw.get("userName"));
-		cooked.setPassword((String) raw.get("passWord"));
-		cooked.setSleepTimeInSeconds((Integer) raw.get("sleepTimeInSeconds"));
-
-		return cooked;
 	}
 
 

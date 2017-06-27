@@ -12,6 +12,7 @@
   	<module>model</module>
   	<module>config-server</module>
     <module>media-server</module>
+    <module>tracker-server</module>
   	<module>client</module>
   </modules>
 
