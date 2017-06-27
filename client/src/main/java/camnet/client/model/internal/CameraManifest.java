@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 @Component
@@ -15,7 +15,7 @@ import org.apache.logging.log4j.LogManager;
 public class CameraManifest {
 	private List<Camera> cameras;
 
-	private Logger logger = LogManager.getLogger();
+	private Logger logger = LoggerFactory.getLogger(CameraManifest.class);
 
 	public CameraManifest() { cameras = new ArrayList<>(); }
 

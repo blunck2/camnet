@@ -21,8 +21,8 @@ import camnet.model.ImagePostResponse;
 import camnet.model.CameraManifest;
 import camnet.model.Camera;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -48,7 +48,7 @@ public class ImageController {
 	@Autowired
 	private S3ImageProcessor s3ImageProcessor;
 
-	private Logger logger = LogManager.getLogger();
+	private Logger logger = LoggerFactory.getLogger(ImageController.class);
 
 	@PostConstruct
 	public void setUp() {

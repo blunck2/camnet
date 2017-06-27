@@ -2,8 +2,8 @@ package camnet.server.media.processor;
 
 import camnet.model.Camera;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -17,7 +17,7 @@ import java.util.Map;
 @ConfigurationProperties(prefix="localImageProcessor")
 public class LocalImageProcessor implements ImageProcessor {
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger logger = LoggerFactory.getLogger(LocalImageProcessor.class);
 
 
 	private String rootImageDirectory;

@@ -4,8 +4,8 @@ import camnet.model.Camera;
 import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -25,7 +25,7 @@ import java.util.Map;
 @ConfigurationProperties(prefix="s3ImageProcessor")
 public class S3ImageProcessor implements ImageProcessor {
 
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LoggerFactory.getLogger(S3ImageProcessor.class);
 
     private String accessKey;
     private String secretKey;

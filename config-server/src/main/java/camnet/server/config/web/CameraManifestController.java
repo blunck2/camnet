@@ -1,7 +1,7 @@
 package camnet.server.config.web;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,7 +22,7 @@ import java.util.List;
 public class CameraManifestController {
 	private CameraManifest manifest;
 
-	private Logger logger = LogManager.getLogger();
+	private Logger logger = LoggerFactory.getLogger(CameraManifestController.class);
 
 	@PostConstruct
 	public void setUp() {
@@ -31,7 +31,8 @@ public class CameraManifestController {
 
 	@RequestMapping("/cameras")
   	public List<Camera> getAllCameras() {
-  		return manifest.getAllCameras();
+  		logger.info("camera size: " + manifest.getAllCameras().size());
+			return manifest.getAllCameras();
   	}
 
 	@RequestMapping("/cameras/house/{houseName}")

@@ -27,8 +27,8 @@ import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.web.client.RestTemplate;
 
@@ -38,7 +38,7 @@ public class ImageRetriever {
 	private CloseableHttpClient client;
 	private HttpGet httpGet;
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger logger = LoggerFactory.getLogger(ImageRetriever.class);
 
 	private static final String[] VALUABLE_HEADERS = new String[] { "Content-type" };
 

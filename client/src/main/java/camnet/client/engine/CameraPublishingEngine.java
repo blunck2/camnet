@@ -19,8 +19,8 @@ import java.lang.Runnable;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.springframework.web.client.RestTemplate;
@@ -57,7 +57,7 @@ public class CameraPublishingEngine {
 
 	private ObjectMapper mapper;
 
-	private Logger logger = LogManager.getLogger();
+	private Logger logger = LoggerFactory.getLogger(CameraPublishingEngine.class);
 
 
 	public CameraPublishingEngine() {
@@ -103,7 +103,7 @@ public class CameraPublishingEngine {
 
 	private List<Camera> getCamerasForHouse(String house) {
 		String url = configurationRestEndpoint + "/manifest/cameras/house/" + house;
-		logger.trace("retrieving camera manifests from: " + url);
+		logger.info("***************************** retrieving camera manifests from: " + url);
 		template.getInterceptors().add(new BasicAuthorizationInterceptor(this.userName, this.passWord));
 		ResponseEntity<Camera[]> responseEntity = template.getForEntity(url, Camera[].class);
 		List<Camera> cameras = new ArrayList<>();
