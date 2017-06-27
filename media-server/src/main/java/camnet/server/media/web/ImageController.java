@@ -78,7 +78,7 @@ public class ImageController {
 			manifest.addCamera(camera);
 		}
 
-		logger.trace("********************** camera configurations loaded.  house names: " + manifest.getHouseNames());
+		logger.trace("camera configurations loaded.  house names: " + manifest.getHouseNames());
 	}
 
 

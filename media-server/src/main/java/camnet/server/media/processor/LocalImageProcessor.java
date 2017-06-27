@@ -36,11 +36,16 @@ public class LocalImageProcessor implements ImageProcessor {
   		String houseNameLowerCase = camera.getHouseName().toLowerCase();
   		String dirName = rootImageDirectory + "/" + houseNameLowerCase;
 
-		// create the base directory
+  		File dirNameFile = new File(dirName);
+  		if (! dirNameFile.isDirectory()) {
+  			dirNameFile.mkdirs();
+			}
+
+			// create the base directory
 	  	File baseDirectory = new File(dirName);
   		baseDirectory.mkdirs();
 
-		// error out if we can't write to the target filename
+			// error out if we can't write to the target filename
 	  	String fileName = dirName + "/" + baseName;
 	  	logger.info("writing to: " + fileName);
   		File outputFile = new File(fileName);
