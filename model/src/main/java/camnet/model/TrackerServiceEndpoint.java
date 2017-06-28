@@ -3,10 +3,10 @@ package camnet.model;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
-public class TrackerService {
+public class TrackerServiceEndpoint {
   private String url;
   private String userName;
-  private String password;
+  private String passWord;
 
   public String getUrl() { return url; }
   public void setUrl(String url) { this.url = url; }
@@ -14,8 +14,8 @@ public class TrackerService {
   public String getUserName() { return userName; }
   public void setUserName(String userName) { this.userName = userName; }
 
-  public String getPassword() { return password; }
-  public void setPassword(String password) { this.password = password; }
+  public String getPassWord() { return passWord; }
+  public void setPassWord(String password) { this.passWord = password; }
 
   @Override public boolean equals(Object obj) {
     if (obj == null) { return false; }
@@ -24,13 +24,13 @@ public class TrackerService {
       return false;
     }
 
-    TrackerService rhs = (TrackerService) obj;
+    TrackerServiceEndpoint rhs = (TrackerServiceEndpoint) obj;
 
     boolean isEquals = new EqualsBuilder()
         .appendSuper(super.equals(obj))
         .append(url, rhs.url)
         .append(userName, rhs.userName)
-        .append(password, rhs.password)
+        .append(passWord, rhs.passWord)
         .isEquals();
     return isEquals;
   }

@@ -28,10 +28,10 @@ public class CameraManifestController {
 	}
 
 	@RequestMapping("/cameras")
-  	public List<Camera> getAllCameras() {
-  		logger.info("camera size: " + manifest.getAllCameras().size());
-			return manifest.getAllCameras();
-  	}
+	public List<Camera> getAllCameras() {
+		logger.info("camera size: " + manifest.getAllCameras().size());
+		return manifest.getAllCameras();
+	}
 
 	@RequestMapping("/cameras/house/{houseName}")
 	public List<Camera> getCamerasByHouseName(@PathVariable("houseName") String houseName) {
