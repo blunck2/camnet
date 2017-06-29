@@ -15,7 +15,7 @@ import camnet.model.TrackerServiceEndpoint;
 public class TrackerServiceEndpointController {
   private TrackerServiceEndpoint endpoint;
 
-  private Logger logger = LoggerFactory.getLogger(CameraManifestController.class);
+  private Logger logger = LoggerFactory.getLogger(TrackerServiceEndpointController.class);
 
 
   @PostConstruct
@@ -23,15 +23,15 @@ public class TrackerServiceEndpointController {
   }
 
   @RequestMapping("/endpoint")
-  public TrackerServiceEndpoint getTrackerServiceEndpoint() {
+  public TrackerServiceEndpoint getServiceEndpoint() {
     return endpoint;
   }
 
   @PostMapping("/endpoint")
-  public TrackerServiceEndpoint setCameraById(@RequestBody TrackerServiceEndpoint endpoint) {
+  public TrackerServiceEndpoint setServiceEndpoint(@RequestBody TrackerServiceEndpoint endpoint) {
     logger.info("tracker endpoint: " + endpoint.getUrl());
 
-    endpoint = endpoint;
+    this.endpoint = endpoint;
     return endpoint;
   }
 }

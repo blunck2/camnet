@@ -1,5 +1,5 @@
 #!/bin/sh -x
 
-CAMERAS_MANIFEST=../resources/config/trackerServiceEndpoint.json
+CONFIG_FILE=../resources/config/trackerServiceEndpoint.json
 
-curl -vv -X POST -u admin:admin --data @${CAMERAS_MANIFEST} --header "Content-Type:application/json" http://localhost:8181/api/config/tracker/endpoint
+curl -vv -X POST -u admin:admin --data @${CONFIG_FILE} --header "Content-Type:application/json" http://localhost:8181/api/config/tracker/endpoint
