@@ -6,7 +6,6 @@ import camnet.client.model.internal.CameraManifest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.client.support.BasicAuthorizationInterceptor;
 import org.springframework.stereotype.Component;
 import org.springframework.http.ResponseEntity;
@@ -34,14 +33,14 @@ public class CameraPublishingEngine {
 	@Value("${CameraPublishingEngine.configurationRestEndpoint}")
 	private String configurationRestEndpoint;
 
-	@Value("${CameraPublishingEngine.mediaRestEndpoint}")
-	private String mediaRestEndpoint;
-
 	@Value("${CameraPublishingEngine.configurationUserName}")
 	private String configurationUserName;
 
 	@Value("${CameraPublishingEngine.configurationPassWord}")
 	private String configurationPassWord;
+
+	@Value("${CameraPublishingEngine.mediaRestEndpoint}")
+	private String mediaRestEndpoint;
 
 	@Value("${CameraPublishingEngine.mediaUserName}")
 	private String mediaUserName;
@@ -79,14 +78,6 @@ public class CameraPublishingEngine {
 		return configurationRestEndpoint;
 	}
 
-	public void setMediaRestEndpoint(String restEndpoint) {
-		this.mediaRestEndpoint = restEndpoint;
-	}
-
-	public String getMediaRestEndpoint() {
-		return mediaRestEndpoint;
-	}
-
 	public String getConfigurationUserName() {
 		return configurationUserName;
 	}
@@ -101,6 +92,14 @@ public class CameraPublishingEngine {
 
 	public void setConfigurationPassWord(String passWord) {
 		this.configurationPassWord = passWord;
+	}
+
+	public void setMediaRestEndpoint(String restEndpoint) {
+		this.mediaRestEndpoint = restEndpoint;
+	}
+
+	public String getMediaRestEndpoint() {
+		return mediaRestEndpoint;
 	}
 
 	public String getMediaUserName() {
