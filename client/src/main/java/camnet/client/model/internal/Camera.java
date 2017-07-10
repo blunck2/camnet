@@ -6,7 +6,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 public class Camera {
 	private String id;
 	private String fileName;
-	private String houseName;
+	private String environment;
 	private String url;
 	private String userName;
 	private String password;
@@ -18,8 +18,8 @@ public class Camera {
 	public String getFileName() { return fileName; }
 	public void setFileName(String fileName) { this.fileName= fileName; }
 
-	public String getHouseName() { return houseName; }
-	public void setHouseName(String houseName) { this.houseName = houseName; }
+	public String getEnvironment() { return environment; }
+	public void setEnvironment(String environment) { this.environment = environment; }
 
 	public String getUrl() { return url; }
 	public void setUrl(String url) { this.url = url; }
@@ -34,7 +34,7 @@ public class Camera {
 	public void setPassword(String password) { this.password = password; }
 
 	public String getDisplayName() {
-		return houseName + "/" + id;
+		return environment + "/" + id;
 	}
 
 	@Override public boolean equals(Object obj) {
@@ -49,7 +49,7 @@ public class Camera {
    		boolean isEquals = new EqualsBuilder()
         	        .appendSuper(super.equals(obj))
             	    .append(id, rhs.id)
-					.append(houseName, rhs.houseName)
+					.append(environment, rhs.environment)
             	    .append(url, rhs.url)
 					.append(userName, rhs.userName)
 					.append(password, rhs.password)

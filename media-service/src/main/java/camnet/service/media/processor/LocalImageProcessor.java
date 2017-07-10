@@ -33,7 +33,7 @@ public class LocalImageProcessor implements ImageProcessor {
 
 	public int processImage(Camera camera, MultipartFile image, Map<String, String> imageHeaders) throws ImageProcessingException {
   		String baseName = camera.getFileName();
-  		String houseNameLowerCase = camera.getHouseName().toLowerCase();
+  		String houseNameLowerCase = camera.getEnvironment().toLowerCase();
   		String dirName = rootImageDirectory + "/" + houseNameLowerCase;
 
   		File dirNameFile = new File(dirName);

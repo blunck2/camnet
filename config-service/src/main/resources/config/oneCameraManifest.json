@@ -2,7 +2,7 @@
   {
     "id": "driveway",
     "fileName": "driveway.jpg",
-    "houseName": "OneCamera",
+    "environment": "OneCamera",
     "cameraName": "Wells Driveway",
     "url": "http://192.168.100.150/cgi-bin/viewer/video.jpg",
     "userName": null,

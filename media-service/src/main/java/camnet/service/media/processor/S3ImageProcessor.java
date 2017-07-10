@@ -81,7 +81,7 @@ public class S3ImageProcessor implements ImageProcessor {
     }
 
     public int processImage(Camera camera, MultipartFile image, Map<String, String> imageHeaders) throws ImageProcessingException {
-        String objectId = camera.getHouseName() + "-" + camera.getId();
+        String objectId = camera.getEnvironment() + "-" + camera.getId();
         byte[] bytes;
         try {
             bytes = IOUtils.toByteArray(image.getInputStream());
@@ -89,7 +89,7 @@ public class S3ImageProcessor implements ImageProcessor {
             metadata.setContentLength(bytes.length);
             String contentType = imageHeaders.get("contentType");
             metadata.setContentType(contentType);
-            metadata.setContentDisposition(camera.getHouseName() + "-" + camera.getId());
+            metadata.setContentDisposition(camera.getEnvironment() + "-" + camera.getId());
             ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
 
             AccessControlList acl = new AccessControlList();

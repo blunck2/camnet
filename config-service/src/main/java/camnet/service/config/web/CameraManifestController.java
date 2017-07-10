@@ -66,13 +66,13 @@ public class CameraManifestController {
 								@PathVariable("cameraId") String cameraId,
 								@RequestBody Camera camera) {
 		manifest.addCamera(camera);
-		return manifest.getCameraById(camera.getHouseName(), camera.getId());
+		return manifest.getCameraById(camera.getEnvironment(), camera.getId());
 	}
 
 	@PostMapping("/cameras")
 	public void setAllCameras(@RequestBody List<Camera> cameras) {
 		for (Camera camera : cameras) {
-			String houseName = camera.getHouseName();
+			String houseName = camera.getEnvironment();
 			String cameraId = camera.getId();
 			setCameraById(houseName, cameraId, camera);
 			logger.info("loading camera: " + houseName + "/" + cameraId);

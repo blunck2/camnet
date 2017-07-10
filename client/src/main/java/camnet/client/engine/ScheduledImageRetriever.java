@@ -51,7 +51,7 @@ public class ScheduledImageRetriever implements Runnable {
 	public void run() {
 		ImageProductionResponse response;
 
-		logger.info("retrieving and publishing image: " + camera.getHouseName() + "/" + camera.getId());
+		logger.info("retrieving and publishing image: " + camera.getDisplayName());
 
 		byte[] image = null;
 		Map<String, String> headers;
@@ -87,7 +87,7 @@ public class ScheduledImageRetriever implements Runnable {
 
 		int newSleepTimeInSeconds = camera.getSleepTimeInSeconds();
 		if (oldSleepTimeInSeconds != newSleepTimeInSeconds) {
-			logger.info("sleep time changed for '" + camera.getHouseName() + "/" + camera.getId() + "' camera: " +
+			logger.info("sleep time changed for '" + camera.getDisplayName() + ": " +
 					oldSleepTimeInSeconds + "s -> " + newSleepTimeInSeconds + "s");
 		}
 

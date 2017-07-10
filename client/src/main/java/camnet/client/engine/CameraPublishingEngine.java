@@ -123,7 +123,7 @@ public class CameraPublishingEngine {
 
 	private List<Camera> getCamerasForHouse(String house) {
 		String url = configurationRestEndpoint + "/manifest/cameras/house/" + house;
-		logger.info("***************************** retrieving camera manifests from: " + url);
+		logger.info("retrieving camera manifests from: " + url);
 		template.getInterceptors().add(new BasicAuthorizationInterceptor(this.configurationUserName, this.configurationPassWord));
 		ResponseEntity<Camera[]> responseEntity = template.getForEntity(url, Camera[].class);
 		List<Camera> cameras = new ArrayList<>();
@@ -161,7 +161,7 @@ public class CameraPublishingEngine {
 		List<Camera> cameras = manifest.getCameras();
 		logger.info("there are " + cameras.size() + " cameras to poll and publish");
 		for (Camera camera : cameras) {
-			logger.info("starting camera: " + camera.getHouseName() + "/" + camera.getId());
+			logger.info("starting camera: " + camera.getDisplayName());
 			startCamera(camera);
 		}
 	}

@@ -60,10 +60,10 @@ public class ImagePublisher {
 
 
  	public Camera publishImage(Camera camera, byte[] image, Map<String, String> sourceImageHeaders) throws ImagePublishingException {
-		String houseName = camera.getHouseName();
+		String environment = camera.getEnvironment();
 		String cameraId = camera.getId();
 
-		String url = restEndpoint + "/image/ingest/house/" + houseName + "/camera/" + cameraId;
+		String url = restEndpoint + "/image/ingest/environment/" + environment + "/camera/" + cameraId;
 
 		LinkedMultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
 		ByteArrayResource bar = new ByteArrayResource(image) {

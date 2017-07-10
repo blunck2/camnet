@@ -104,7 +104,7 @@ public class ImageRetriever {
 			bytes = EntityUtils.toByteArray(entity);
 			logger.trace(camera.getDisplayName() + " " + bytes.length + " bytes received.");
 		} catch (Throwable e) {
-			throw new ImageRetrievalException("failed to retrieve image from camera '" + camera.getHouseName() + "/" + camera.getId() + " at URL: " + camera.getUrl(), e);
+			throw new ImageRetrievalException("failed to retrieve image from camera '" + camera.getDisplayName() + " at URL: " + camera.getUrl(), e);
 		}
 
 		ImageRetrievalResponse response = new ImageRetrievalResponse();

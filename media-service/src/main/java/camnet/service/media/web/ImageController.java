@@ -106,11 +106,11 @@ public class ImageController {
 	}
 
 
-	@PostMapping("/ingest/house/{houseName}/camera/{cameraId}")
+	@PostMapping("/ingest/environment/{environment}/camera/{cameraId}")
 	public ImagePostResponse ingest(@RequestParam("file") MultipartFile file,
-																	@PathVariable("houseName") String houseName,
+																	@PathVariable("environment") String environment,
 																	@PathVariable("cameraId") String cameraId) {
-		logger.info("incoming image: " + houseName + "/" + cameraId);
+		logger.info("incoming image: " + environment + "/" + cameraId);
 
 		// error out if the manifest is null
 		if (manifest == null) {
@@ -123,9 +123,9 @@ public class ImageController {
 		}
 
 		// error out if the camera has not been defined
-		Camera camera = manifest.getCameraById(houseName, cameraId);
+		Camera camera = manifest.getCameraById(environment, cameraId);
 		if (camera == null) {
-			return createServerErrorResponse("house name '" + houseName + "' and camera id '" +
+			return createServerErrorResponse("environment name '" + environment+ "' and camera id '" +
 					cameraId + "' not found");
 		}
 

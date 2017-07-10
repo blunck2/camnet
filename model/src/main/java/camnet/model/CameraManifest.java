@@ -59,13 +59,13 @@ public class CameraManifest {
 	}
 
   	public void addCamera(Camera camera) {
-		String houseName = camera.getHouseName();
- 		removeCameraById(houseName, camera.getId());
+		String environment = camera.getEnvironment();
+ 		removeCameraById(environment, camera.getId());
 
- 		List<Camera> existingCameras = cameras.get(houseName);
+ 		List<Camera> existingCameras = cameras.get(environment);
  		if (existingCameras == null) {
  			existingCameras = new ArrayList<>();
- 			cameras.put(houseName, existingCameras);
+ 			cameras.put(environment, existingCameras);
 		}
 
  		for (Camera existing : existingCameras) {
