@@ -18,6 +18,7 @@ import camnet.model.ImagePostResponse;
 
 import camnet.model.CameraManifest;
 import camnet.model.Camera;
+import camnet.model.TrackerServiceEndpoint;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,13 +34,16 @@ import java.util.HashMap;
 @RequestMapping("/image")
 @ConfigurationProperties("imageController")
 public class ImageController {
-	private String configurationServerUrl;
-	private String configurationServerUserName;
-	private String configurationServerPassWord;
+	private String configurationServiceUrl;
+	private String configurationServiceUserName;
+	private String configurationServicePassWord;
+
+	private TrackerServiceEndpoint trackerServiceEndpoint;
 
 	private CameraManifest manifest;
 
-	private RestTemplate configServer;
+	private RestTemplate configService;
+	private RestTemplate trackerService;
 
 	@Autowired
 	private LocalImageProcessor localImageProcessor;
@@ -54,28 +58,28 @@ public class ImageController {
 		loadCameraManifest();
 	}
 
-	public String getConfigurationServerUrl() {
-		return configurationServerUrl;
+	public String getConfigurationServiceUrl() {
+		return configurationServiceUrl;
 	}
 
-	public void setConfigurationServerUrl(String configurationServerUrl) {
-		this.configurationServerUrl = configurationServerUrl;
+	public void setConfigurationServiceUrl(String configurationServiceUrl) {
+		this.configurationServiceUrl = configurationServiceUrl;
 	}
 
-	public String getConfigurationServerUserName() {
-		return configurationServerUserName;
+	public String getConfigurationServiceUserName() {
+		return configurationServiceUserName;
 	}
 
-	public void setConfigurationServerUserName(String userName) {
-		this.configurationServerUserName = userName;
+	public void setConfigurationServiceUserName(String userName) {
+		this.configurationServiceUserName = userName;
 	}
 
 	public String getConfigurationServerPassword() {
-		return configurationServerPassWord;
+		return configurationServicePassWord;
 	}
 
-	public void setConfigurationServerPassWord(String passWord) {
-		this.configurationServerPassWord = passWord;
+	public void setConfigurationServicePassWord(String passWord) {
+		this.configurationServicePassWord = passWord;
 	}
 
 	/**
@@ -84,15 +88,22 @@ public class ImageController {
 	private void loadCameraManifest() {
 		manifest = new CameraManifest();
 
-		configServer = new RestTemplate();
-		logger.trace("retrieving cameras from configuration server");
-		ResponseEntity<Camera[]> responseEntity = configServer.getForEntity(configurationServerUrl, Camera[].class);
+		configService = new RestTemplate();
+		logger.trace("retrieving tracker service endpoint from configuration service");
+		ResponseEntity<TrackerServiceEndpoint> trackerResponseEntity = configService.getForEntity(configurationServiceUrl, TrackerServiceEndpoint.class);
+		trackerServiceEndpoint = trackerResponseEntity.getBody();
+
+		trackerService = new RestTemplate();
+		logger.trace("retrieving cameras from tracker service");
+		ResponseEntity<Camera[]> responseEntity = trackerService.getForEntity(trackerServiceEndpoint.getUrl() + "/manifest/cameras", Camera[].class);
 		List<Camera> cameras = new ArrayList<>();
+		int count = 0;
 		for (Camera camera : responseEntity.getBody()) {
 			manifest.addCamera(camera);
+			count++;
 		}
 
-		logger.trace("camera configurations loaded.  house names: " + manifest.getHouseNames());
+		logger.trace(count + " camera configurations loaded.  house names: " + manifest.getEnvironments());
 	}
 
 

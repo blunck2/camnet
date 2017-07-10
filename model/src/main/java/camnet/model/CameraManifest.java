@@ -27,8 +27,8 @@ public class CameraManifest {
 		this.cameras = cameras;
 	}
  
-  	public Camera getCameraById(String houseName, String id) {
-  		for (Camera camera : getCamerasForHouse(houseName)) {
+  	public Camera getCameraById(String environment, String id) {
+  		for (Camera camera : getCamerasForEnvironment(environment)) {
   			if (id.equals(camera.getId())) {
   				return camera;
   			}
@@ -37,16 +37,16 @@ public class CameraManifest {
   		return null;
   	}
 
-  	public List<Camera> getCamerasForHouse(String houseName) {
-		return cameras.get(houseName);
+  	public List<Camera> getCamerasForEnvironment(String environment) {
+		return cameras.get(environment);
 	}
 
-  	public void removeCameraById(String houseName, String id) {
-		if (! cameras.keySet().contains(houseName)) { return; }
+  	public void removeCameraById(String environment, String id) {
+		if (! cameras.keySet().contains(environment)) { return; }
 
-  		List<Camera> camerasForHouse = cameras.get(houseName);
+  		List<Camera> camerasForEnvironment = cameras.get(environment);
 
-		for (Iterator<Camera> iter = camerasForHouse.listIterator(); iter.hasNext();) {
+		for (Iterator<Camera> iter = camerasForEnvironment.listIterator(); iter.hasNext();) {
 			Camera camera = iter.next();
 			if (camera.getId().equals(id)) {
 				iter.remove();
@@ -54,7 +54,7 @@ public class CameraManifest {
 		}
   	}
 
-  	public Set<String> getHouseNames() {
+  	public Set<String> getEnvironments() {
 		return cameras.keySet();
 	}
 
@@ -77,16 +77,16 @@ public class CameraManifest {
  		existingCameras.add(camera);
   	}
 
-  	public List<Camera> getCamerasByHouseName(String houseName) {
-		return cameras.get(houseName);
+  	public List<Camera> getCamerasByEnvironment(String environment) {
+		return cameras.get(environment);
 	}
 
 	public List<Camera> getAllCameras() {
 		List<Camera> allCameras = new ArrayList<>();
 
-		for (String houseName : cameras.keySet()) {
-			List<Camera> houseCameras = cameras.get(houseName);
-			allCameras.addAll(houseCameras);
+		for (String environment : cameras.keySet()) {
+			List<Camera> environmentCameras = cameras.get(environment);
+			allCameras.addAll(environmentCameras);
 		}
 
 		return allCameras;

@@ -51,7 +51,7 @@ public class ImagePublisher {
 		ClientHttpRequestInterceptor loggingRequestInterceptor = new LoggingRequestInterceptor();
 		List<ClientHttpRequestInterceptor> requestInterceptors = new ArrayList<>();
 		requestInterceptors.add(loggingRequestInterceptor);
-		requestInterceptors.add(new BasicAuthorizationInterceptor(this.userName, this.password));
+//		requestInterceptors.add(new BasicAuthorizationInterceptor(this.userName, this.password));
 		template.setInterceptors(requestInterceptors);
 		mapper = new ObjectMapper();
 	}

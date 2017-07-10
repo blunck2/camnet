@@ -3,6 +3,8 @@ package camnet.client.engine;
 import camnet.client.model.internal.Camera;
 import camnet.client.model.internal.CameraManifest;
 
+import camnet.model.MediaServiceEndpoint;
+import camnet.model.TrackerServiceEndpoint;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,27 +32,22 @@ public class CameraPublishingEngine {
 	@Autowired
 	private CameraManifest manifest;
 
-	@Value("${CameraPublishingEngine.configurationRestEndpoint}")
-	private String configurationRestEndpoint;
+	@Value("${CameraPublishingEngine.configurationServiceUrl}")
+	private String configurationServiceUrl;
 
-	@Value("${CameraPublishingEngine.configurationUserName}")
-	private String configurationUserName;
+	@Value("${CameraPublishingEngine.configurationServiceUserName}")
+	private String configurationServiceUserName;
 
-	@Value("${CameraPublishingEngine.configurationPassWord}")
-	private String configurationPassWord;
+	@Value("${CameraPublishingEngine.configurationServicePassWord}")
+	private String configurationServicePassword;
 
-	@Value("${CameraPublishingEngine.mediaRestEndpoint}")
-	private String mediaRestEndpoint;
+	private List<MediaServiceEndpoint> mediaServiceEndpoints;
+	private TrackerServiceEndpoint trackerServiceEndpoint;
 
-	@Value("${CameraPublishingEngine.mediaUserName}")
-	private String mediaUserName;
+	@Value("#{'${CameraPublishingEngine.environments}'.split(',')}")
+	private List<String> environments;
 
-	@Value("${CameraPublishingEngine.mediaPassWord}")
-	private String mediaPassWord;
-
-	@Value("#{'${CameraPublishingEngine.houses}'.split(',')}")
-	private List<String> houses;
-
+	private RestTemplate configService;
 
 	private List<Runnable> retrievers;
 
@@ -70,61 +67,40 @@ public class CameraPublishingEngine {
 		retrievers = new ArrayList<>();
 	}
 
-	public void setConfigurationRestEndpoint(String restEndpoint) {
-		this.configurationRestEndpoint = restEndpoint;
+	public void setConfigurationServiceUrl(String restEndpoint) {
+		this.configurationServiceUrl = restEndpoint;
 	}
 
-	public String getConfigurationRestEndpoint() {
-		return configurationRestEndpoint;
+	public String getConfigurationServiceUrl() {
+		return configurationServiceUrl;
 	}
 
-	public String getConfigurationUserName() {
-		return configurationUserName;
+	public String getConfigurationServiceUserName() {
+		return configurationServiceUserName;
 	}
 
-	public void setConfigurationUserName(String userName) {
-		this.configurationUserName = userName;
+	public void setConfigurationServiceUserName(String userName) {
+		this.configurationServiceUserName = userName;
 	}
 
-	public String getConfigurationPassWord() {
-		return configurationPassWord;
+	public String getConfigurationServicePassword() {
+		return configurationServicePassword;
 	}
 
-	public void setConfigurationPassWord(String passWord) {
-		this.configurationPassWord = passWord;
+	public void setConfigurationServicePassword(String passWord) {
+		this.configurationServicePassword = passWord;
 	}
 
-	public void setMediaRestEndpoint(String restEndpoint) {
-		this.mediaRestEndpoint = restEndpoint;
-	}
+	public void setEnvironments(List<String> environments) { this.environments = environments; }
+	public List<String> getEnvironments() { return environments; }
 
-	public String getMediaRestEndpoint() {
-		return mediaRestEndpoint;
-	}
-
-	public String getMediaUserName() {
-		return mediaUserName;
-	}
-
-	public void setMediaUserName(String userName) {
-		this.mediaUserName = userName;
-	}
-
-	public String getMediaPassWord() {
-		return mediaPassWord;
-	}
-
-	public void setMediaPassWord(String passWord) {
-		this.mediaPassWord = passWord;
-	}
-
-	public void setHouses(List<String> houses) { this.houses = houses; }
-	public List<String> getHouses() { return houses; }
-
-	private List<Camera> getCamerasForHouse(String house) {
-		String url = configurationRestEndpoint + "/manifest/cameras/house/" + house;
+	private List<Camera> getCamerasForEnvironment(String environment) {
+		String trackerServiceUrl = trackerServiceEndpoint.getUrl();
+		String trackerServiceUserName = trackerServiceEndpoint.getUserName();
+		String trackerServicePassWord = trackerServiceEndpoint.getPassWord();
+		String url = trackerServiceUrl + "/manifest/cameras/environment/" + environment;
 		logger.info("retrieving camera manifests from: " + url);
-		template.getInterceptors().add(new BasicAuthorizationInterceptor(this.configurationUserName, this.configurationPassWord));
+//		template.getInterceptors().add(new BasicAuthorizationInterceptor(trackerServiceUserName, trackerServicePassWord));
 		ResponseEntity<Camera[]> responseEntity = template.getForEntity(url, Camera[].class);
 		List<Camera> cameras = new ArrayList<>();
 		for (Camera camera : responseEntity.getBody()) {
@@ -136,21 +112,38 @@ public class CameraPublishingEngine {
 
 	@PostConstruct
 	public void init() {
-		publisher = new ImagePublisher(mediaRestEndpoint, mediaUserName, mediaPassWord);
+		configService = new RestTemplate();
+		logger.trace("retrieving tracker service endpoint from configuration service");
+		ResponseEntity<TrackerServiceEndpoint> trackerResponseEntity = configService.getForEntity(configurationServiceUrl + "/tracker/endpoint", TrackerServiceEndpoint.class);
+		trackerServiceEndpoint = trackerResponseEntity.getBody();
+
+		logger.trace("retrieving media service endpoint from configuration service");
+		ResponseEntity<MediaServiceEndpoint[]> mediaResponseEntities = configService.getForEntity(configurationServiceUrl + "/media/endpoints", MediaServiceEndpoint[].class);
+		mediaServiceEndpoints = new ArrayList<>();
+		int count = 0;
+		for (MediaServiceEndpoint mediaServiceEndpoint : mediaResponseEntities.getBody()) {
+			mediaServiceEndpoints.add(mediaServiceEndpoint);
+			count++;
+		}
+		logger.trace("loaded " + count + " media service endpoints");
+
+		MediaServiceEndpoint mediaServiceEndpoint = mediaServiceEndpoints.get(0);
+		String mediaServiceUrl = mediaServiceEndpoint.getUrl();
+		String mediaServiceUserName = mediaServiceEndpoint.getUserName();
+		String mediaServicePassWord = mediaServiceEndpoint.getPassWord();
+		publisher = new ImagePublisher(mediaServiceUrl, mediaServiceUserName, mediaServicePassWord);
 
 		List<Camera> allCameras = new ArrayList<>();
 
-		for (String house : houses) {
-			logger.info("getting cameras for house: " + house);
-			List<Camera> cameras = getCamerasForHouse(house);
+		for (String environment : environments) {
+			logger.info("getting cameras for environment: " + environment);
+			List<Camera> cameras = getCamerasForEnvironment(environment);
 			logger.info("retrieved " + cameras.size() + " cameras");
 			allCameras.addAll(cameras);
 		}
 
 
 		manifest.setCameras(allCameras);
-
-
 
 		int cameraCount = allCameras.size();
 

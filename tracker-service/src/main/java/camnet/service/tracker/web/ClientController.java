@@ -59,24 +59,7 @@ public class ClientController {
 
   @PostConstruct
   public void setUp() {
-    loadCameraManifest();
-  }
 
-  /**
-   * Retrieves the camera manifest from the configuration server
-   */
-  private void loadCameraManifest() {
-    manifest = new CameraManifest();
-
-    configServer = new RestTemplate();
-    logger.trace("retrieving cameras from configuration server");
-    ResponseEntity<Camera[]> responseEntity = configServer.getForEntity(configurationServerUrl, Camera[].class);
-    List<Camera> cameras = new ArrayList<>();
-    for (Camera camera : responseEntity.getBody()) {
-      manifest.addCamera(camera);
-    }
-
-    logger.trace("camera configurations loaded.  house names: " + manifest.getHouseNames());
   }
 
 

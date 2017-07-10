@@ -1,10 +1,17 @@
-package camnet.service.tracker.service.tracker.engine;
+package camnet.service.tracker.engine;
 
+import camnet.model.CameraManifest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+
 
 @Component
 public class TrackerEngine {
+  private CameraManifest manifest;
+
   @Value("${TrackerEngine.configurationRestEndpoint}")
   private String configurationRestEndpoint;
 
@@ -13,6 +20,11 @@ public class TrackerEngine {
 
   @Value("${TrackerEngine.configurationPassWord}")
   private String configurationPassWord;
+
+  @PostConstruct
+  public void setUp() {
+    manifest = new CameraManifest();
+  }
 
   public void setConfigurationRestEndpoint(String restEndpoint) {
     this.configurationRestEndpoint = restEndpoint;
@@ -37,5 +49,8 @@ public class TrackerEngine {
   public void setConfigurationPassWord(String passWord) {
     this.configurationPassWord = passWord;
   }
+
+  public CameraManifest getCameraManifest() { return manifest; }
+  public void setCameraManifest(CameraManifest manifest) { this.manifest = manifest; }
 
 }

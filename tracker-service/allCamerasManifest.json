@@ -1,0 +1,192 @@
+[
+  {
+    "id": "driveway",
+    "fileName": "driveway.jpg",
+    "environment": "Wells",
+    "cameraName": "Wells Driveway",
+    "url": "http://192.168.100.150/cgi-bin/viewer/video.jpg",
+    "userName": null,
+    "password": null,
+    "sleepTimeInSeconds": 60
+  },
+  {
+    "id": "yard",
+    "fileName": "frontyard.jpg",
+    "environment": "Wells",
+    "cameraName": "Wells Yard",
+    "url": "http://192.168.100.151/cgi-bin/viewer/video.jpg",
+    "userName": null,
+    "password": null,
+    "sleepTimeInSeconds": 60
+  },
+  {
+    "id": "garage",
+    "fileName": "garage.jpg",
+    "environment": "Wells",
+    "cameraName": "Wells Garage",
+    "url": "http://192.168.100.152/cgi-bin/snapshot.cgi?loginuse=admin",
+    "userName": null,
+    "password": null,
+    "sleepTimeInSeconds": 60
+  },
+  {
+    "id": "ramp",
+    "fileName": "ramp.jpg",
+    "environment": "Soundsets",
+    "cameraName": "Soundsets Ramp",
+    "url": "http://192.168.104.101/cgi-bin/viewer/video.jpg",
+    "userName": null,
+    "password": null,
+    "sleepTimeInSeconds": 60
+  },
+  {
+    "id": "driveway",
+    "fileName": "driveway.jpg",
+    "environment": "Soundsets",
+    "cameraName": "Soundsets Driveway",
+    "url": "http://192.168.104.100/cgi-bin/viewer/video.jpg",
+    "userName": null,
+    "password": null,
+    "sleepTimeInSeconds": 60
+  },
+  {
+    "id": "westside",
+    "fileName": "westside.jpg",
+    "environment": "Soundsets",
+    "cameraName": "Soundsets West Side",
+    "url": "http://192.168.104.102/cgi-bin/viewer/video.jpg",
+    "userName": null,
+    "password": null,
+    "sleepTimeInSeconds": 60
+  },
+  {
+    "id": "driveway",
+    "fileName": "driveway.jpg",
+    "environment": "SeaBreezes",
+    "cameraName": "SeaBreezes Driveway",
+    "url": "http://192.168.106.103/cgi-bin/viewer/video.jpg",
+    "userName": null,
+    "password": null,
+    "sleepTimeInSeconds": 60
+  },
+  {
+    "id": "yard",
+    "fileName": "yard.jpg",
+    "environment": "SeaBreezes",
+    "cameraName": "SeaBreezes Yard",
+    "url": "http://192.168.106.101/cgi-bin/viewer/video.jpg",
+    "userName": null,
+    "password": null,
+    "sleepTimeInSeconds": 60
+  },
+  {
+    "id": "driveway",
+    "fileName": "driveway.jpg",
+    "environment": "SecondWind",
+    "cameraName": "SecondWind Driveway",
+    "url": "http://192.168.106.102/cgi-bin/viewer/video.jpg",
+    "userName": null,
+    "password": null,
+    "sleepTimeInSeconds": 60
+  },
+  {
+    "id": "pooldeck",
+    "fileName": "pooldeck.jpg",
+    "environment": "SecondWind",
+    "cameraName": "SecondWind Pool Deck",
+    "url": "http://192.168.106.100/cgi-bin/viewer/video.jpg",
+    "userName": null,
+    "password": null,
+    "sleepTimeInSeconds": 60
+  },
+  {
+    "id": "deck",
+    "fileName": "deck.jpg",
+    "environment": "GrandView",
+    "cameraName": "GrandView Pool Deck",
+    "url": "http://192.168.108.101//image/jpeg.cgi",
+    "userName": "admin",
+    "password": "rgb123",
+    "sleepTimeInSeconds": 60
+  },
+  {
+    "id": "driveway",
+    "fileName": "driveway.jpg",
+    "environment": "GrandView",
+    "cameraName": "GrandView Driveway",
+    "url": "http://192.168.108.100//image/jpeg.cgi",
+    "userName": "admin",
+    "password": "rgb123",
+    "sleepTimeInSeconds": 60
+  },
+  {
+    "id": "ocean",
+    "fileName": "ocean.jpg",
+    "environment": "GrandView",
+    "cameraName": "GrandView Ocean",
+    "url": "http://192.168.108.102/cgi-bin/viewer/video.jpg",
+    "userName": null,
+    "password": null,
+    "sleepTimeInSeconds": 60
+  },
+  {
+    "id": "backyard",
+    "fileName": "backyard_fixed.jpg",
+    "environment": "Caravan",
+    "cameraName": "Caravan Back Yard",
+    "url": "http://camera-backyard.caravan.thebluncks.net/image/jpeg.cgi",
+    "userName": "admin",
+    "password": "11slave22",
+    "sleepTimeInSeconds": 60
+  },
+  {
+    "id": "frontyard",
+    "fileName": "frontyard.jpg",
+    "environment": "Caravan",
+    "cameraName": "Caravan Front Yard",
+    "url": "http://camera-driveway.caravan.thebluncks.net/cgi-bin/viewer/video.jpg",
+    "userName": null,
+    "password": null,
+    "sleepTimeInSeconds": 60
+  },
+  {
+    "id": "backyard",
+    "fileName": "backyard.jpg",
+    "environment": "Eversfield",
+    "cameraName": "Eversfield Back Yard",
+    "url": "http://192.168.101.201/cgi-bin/viewer/video.jpg",
+    "userName": null,
+    "password": null,
+    "sleepTimeInSeconds": 60
+  },
+  {
+    "id": "driveway",
+    "fileName": "driveway.jpg",
+    "environment": "Eversfield",
+    "cameraName": "Eversfield Driveway",
+    "url": "http://192.168.101.200/cgi-bin/viewer/video.jpg",
+    "userName": null,
+    "password": null,
+    "sleepTimeInSeconds": 60
+  },
+  {
+    "id": "south",
+    "fileName": "south.jpg",
+    "environment": "Eversfield",
+    "cameraName": "Eversfield South",
+    "url": "http://192.168.101.202/cgi-bin/viewer/video.jpg",
+    "userName": null,
+    "password": null,
+    "sleepTimeInSeconds": 60
+  },
+  {
+    "id": "driveway",
+    "fileName": "driveway.jpg",
+    "environment": "OneCamera",
+    "cameraName": "Wells Driveway",
+    "url": "http://192.168.100.150/cgi-bin/viewer/video.jpg",
+    "userName": null,
+    "password": null,
+    "sleepTimeInSeconds": 60
+  }
+]

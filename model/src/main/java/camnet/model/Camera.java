@@ -34,6 +34,8 @@ public class Camera {
 	public String getPassword() { return password; }
 	public void setPassword(String password) { this.password = password; }
 
+	public String getDisplayName() { return getEnvironment() + "/" + getCameraName(); }
+
 	public int getSleepTimeInSeconds() { return sleepTimeInSeconds; }
 	public void setSleepTimeInSeconds(int sleepTimeInSeconds) { this.sleepTimeInSeconds = sleepTimeInSeconds; }
 
