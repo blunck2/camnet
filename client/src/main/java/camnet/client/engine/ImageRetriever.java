@@ -1,6 +1,6 @@
 package camnet.client.engine;
 
-import camnet.client.model.internal.Camera;
+import camnet.model.Camera;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -56,9 +56,9 @@ public class ImageRetriever {
 		HttpClientBuilder builder = HttpClientBuilder.create();
 		builder.setDefaultRequestConfig(requestConfigBuilder.build());
 
-		if ((camera.getUserName() != null) && (camera.getPassword() != null)) {
+		if ((camera.getUserName() != null) && (camera.getPassWord() != null)) {
 			String username = camera.getUserName();
-			String password = camera.getPassword();
+			String password = camera.getPassWord();
 			UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(username, password);
 			logger.trace(camera.getDisplayName() + " username/password: " + username + "/" + password);
 			CredentialsProvider provider = new BasicCredentialsProvider();

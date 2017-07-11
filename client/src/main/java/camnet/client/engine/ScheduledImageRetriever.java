@@ -2,7 +2,7 @@ package camnet.client.engine;
 
 import java.util.List;
 
-import camnet.client.model.internal.Camera;
+import camnet.model.Camera;
 
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;

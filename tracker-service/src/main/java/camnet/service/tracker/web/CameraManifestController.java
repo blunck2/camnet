@@ -41,6 +41,17 @@ public class CameraManifestController {
     return response;
   }
 
+
+  @PostMapping("/cameras/environment/{environment}/camera/{cameraId}/posted")
+  public Camera setCameraPostTime(@PathVariable("environment") String environment,
+                                  @PathVariable("cameraId") String cameraId) {
+    CameraManifest manifest = engine.getCameraManifest();
+    Camera camera = manifest.getCameraById(environment, cameraId);
+    camera.setLastUpdateEpoch(System.currentTimeMillis());
+
+    return camera;
+  }
+
   @RequestMapping("/cameras/environment/{environment}/camera/{cameraId}")
   public Camera getCameraById(@PathVariable("environment") String environment,
                               @PathVariable("cameraId") String cameraId) {

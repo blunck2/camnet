@@ -9,10 +9,12 @@ public class Camera {
 	private String fileName;
 	private String environment;
 	private String cameraName;
+	private String displayName;
 	private String url;
 	private String userName;
 	private String passWord;
 	private int sleepTimeInSeconds;
+	private long lastUpdateEpoch;
 
 	public String getId() { return id; }
 	public void setId(String id) { this.id = id; }
@@ -35,10 +37,24 @@ public class Camera {
 	public String getPassWord() { return passWord; }
 	public void setPassWord(String passWord) { this.passWord = passWord; }
 
-	public String getDisplayName() { return getEnvironment() + "/" + getCameraName(); }
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
 
 	public int getSleepTimeInSeconds() { return sleepTimeInSeconds; }
 	public void setSleepTimeInSeconds(int sleepTimeInSeconds) { this.sleepTimeInSeconds = sleepTimeInSeconds; }
+
+	public long getLastUpdateEpoch() {
+		return lastUpdateEpoch;
+	}
+
+	public void setLastUpdateEpoch(long lastUpdateEpoch) {
+		this.lastUpdateEpoch = lastUpdateEpoch;
+	}
 
 	@Override public boolean equals(Object obj) {
    		if (obj == null) { return false; }
@@ -55,10 +71,11 @@ public class Camera {
                 	.append(fileName, rhs.fileName)
                  	.append(environment, rhs.environment)
                  	.append(cameraName, rhs.cameraName)
-					.append(url, rhs.url)
-					.append(userName, rhs.userName)
-					.append(passWord, rhs.passWord)
+									.append(url, rhs.url)
+									.append(userName, rhs.userName)
+									.append(passWord, rhs.passWord)
                  	.append(sleepTimeInSeconds, rhs.sleepTimeInSeconds)
+									.append(lastUpdateEpoch, rhs.lastUpdateEpoch)
                  	.isEquals();
         return isEquals;
 	}
@@ -74,6 +91,7 @@ public class Camera {
 				append("userName", userName).
 				append("passWord", passWord).
 				append("sleepTimeInSeconds", sleepTimeInSeconds).
+				append("lastUpdateEpoch", lastUpdateEpoch).
 				toString();
 	}
 

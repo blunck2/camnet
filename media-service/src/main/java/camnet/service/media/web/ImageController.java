@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.HttpMethod;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import camnet.service.media.processor.LocalImageProcessor;
 import camnet.service.media.processor.S3ImageProcessor;
@@ -29,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
+import java.io.IOException;
+
 
 @RestController
 @RequestMapping("/image")
@@ -39,11 +44,15 @@ public class ImageController {
 	private String configurationServicePassWord;
 
 	private List<TrackerServiceEndpoint> trackerServiceEndpoints;
+	private String trackerServiceEndpointUrl;
 
 	private CameraManifest manifest;
 
 	private RestTemplate configService;
 	private RestTemplate trackerService;
+
+	private ObjectMapper mapper;
+
 
 	@Autowired
 	private LocalImageProcessor localImageProcessor;
@@ -56,6 +65,10 @@ public class ImageController {
 	@PostConstruct
 	public void setUp() {
 		loadCameraManifest();
+	}
+
+	public ImageController() {
+		mapper = new ObjectMapper();
 	}
 
 	public String getConfigurationServiceUrl() {
@@ -100,7 +113,7 @@ public class ImageController {
 
 		// FIXME: add failover to other tracker service endpoints
 		TrackerServiceEndpoint trackerServiceEndpoint = trackerServiceEndpoints.get(0);
-		String trackerServiceEndpointUrl = trackerServiceEndpoint.getUrl();
+		trackerServiceEndpointUrl = trackerServiceEndpoint.getUrl();
 
 		trackerService = new RestTemplate();
 		logger.trace("retrieving cameras from tracker service");
@@ -165,6 +178,25 @@ public class ImageController {
 			response.setSleepTimeInSeconds(60);
 			return response;
 		}
+
+		// notify the tracker
+		String url = trackerServiceEndpointUrl + "/manifest/cameras/environment/" + environment + "/camera/" + cameraId + "/posted";
+		logger.trace("POSTing update to tracker: " + url);
+		ResponseEntity<String> responseEntity= trackerService.exchange(url,
+				HttpMethod.POST,
+				null,
+				String.class);
+
+		try {
+			camera = mapper.readValue(responseEntity.getBody(), Camera.class);
+		} catch (IOException e) {
+			logger.error("failed to notify tracker", e);
+		} catch (Throwable t) {
+			logger.error("failed to notify tracker", t);
+		}
+
+		logger.trace(camera.getDisplayName() + " back from POST: " + camera.toString());
+
 
 		// nominal response
 		ImagePostResponse response = new ImagePostResponse();

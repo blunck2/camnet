@@ -1,6 +1,6 @@
 package camnet.client.engine;
 
-import camnet.client.model.internal.Camera;
+import camnet.model.Camera;
 
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.support.BasicAuthorizationInterceptor;

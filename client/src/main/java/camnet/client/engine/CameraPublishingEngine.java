@@ -1,10 +1,10 @@
 package camnet.client.engine;
 
-import camnet.client.model.internal.Camera;
-import camnet.client.model.internal.CameraManifest;
-
+import camnet.model.Camera;
+import camnet.model.CameraManifest;
 import camnet.model.MediaServiceEndpoint;
 import camnet.model.TrackerServiceEndpoint;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 
 import java.util.concurrent.*;
 import java.lang.Runnable;
@@ -29,7 +30,6 @@ import org.springframework.web.client.RestTemplate;
 
 @Component
 public class CameraPublishingEngine {
-	@Autowired
 	private CameraManifest manifest;
 
 	@Value("${CameraPublishingEngine.configurationServiceUrl}")
@@ -65,6 +65,7 @@ public class CameraPublishingEngine {
 	public CameraPublishingEngine() {
 		template = new RestTemplate();
 		retrievers = new ArrayList<>();
+		manifest = new CameraManifest();
 	}
 
 	public void setConfigurationServiceUrl(String restEndpoint) {
@@ -149,24 +150,20 @@ public class CameraPublishingEngine {
 			logger.info("getting cameras for environment: " + environment);
 			List<Camera> cameras = getCamerasForEnvironment(environment);
 			logger.info("retrieved " + cameras.size() + " cameras");
+			manifest.setCamerasForEnvironment(environment, cameras);
 			allCameras.addAll(cameras);
 		}
-
-
-		manifest.setCameras(allCameras);
 
 		int cameraCount = allCameras.size();
 
 		ThreadFactoryBuilder builder = new ThreadFactoryBuilder().setNameFormat("img-producer-%d");
 
 		scheduler = Executors.newScheduledThreadPool(cameraCount, builder.build());
-
-		List<Camera> cameras = manifest.getCameras();
-		logger.info("there are " + cameras.size() + " cameras to poll and publish");
-		for (Camera camera : cameras) {
-			logger.info("starting camera: " + camera.getDisplayName());
+		for (Camera camera : allCameras) {
+			logger.trace("starting camera: " + camera.getDisplayName());
 			startCamera(camera);
 		}
+
 	}
 
 
