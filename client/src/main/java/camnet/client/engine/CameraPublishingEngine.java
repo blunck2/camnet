@@ -42,7 +42,7 @@ public class CameraPublishingEngine {
 	private String configurationServicePassword;
 
 	private List<MediaServiceEndpoint> mediaServiceEndpoints;
-	private TrackerServiceEndpoint trackerServiceEndpoint;
+	private List<TrackerServiceEndpoint> trackerServiceEndpoints;
 
 	@Value("#{'${CameraPublishingEngine.environments}'.split(',')}")
 	private List<String> environments;
@@ -95,9 +95,13 @@ public class CameraPublishingEngine {
 	public List<String> getEnvironments() { return environments; }
 
 	private List<Camera> getCamerasForEnvironment(String environment) {
-		String trackerServiceUrl = trackerServiceEndpoint.getUrl();
-		String trackerServiceUserName = trackerServiceEndpoint.getUserName();
-		String trackerServicePassWord = trackerServiceEndpoint.getPassWord();
+
+		// TODO: implement failover to backup trackers
+		TrackerServiceEndpoint endpoint = trackerServiceEndpoints.get(0);
+
+		String trackerServiceUrl = endpoint.getUrl();
+		String trackerServiceUserName = endpoint.getUserName();
+		String trackerServicePassWord = endpoint.getPassWord();
 		String url = trackerServiceUrl + "/manifest/cameras/environment/" + environment;
 		logger.info("retrieving camera manifests from: " + url);
 //		template.getInterceptors().add(new BasicAuthorizationInterceptor(trackerServiceUserName, trackerServicePassWord));
@@ -114,13 +118,19 @@ public class CameraPublishingEngine {
 	public void init() {
 		configService = new RestTemplate();
 		logger.trace("retrieving tracker service endpoint from configuration service");
-		ResponseEntity<TrackerServiceEndpoint> trackerResponseEntity = configService.getForEntity(configurationServiceUrl + "/tracker/endpoint", TrackerServiceEndpoint.class);
-		trackerServiceEndpoint = trackerResponseEntity.getBody();
+		ResponseEntity<TrackerServiceEndpoint[]> trackerResponseEntities = configService.getForEntity(configurationServiceUrl + "/tracker/endpoints", TrackerServiceEndpoint[].class);
+		trackerServiceEndpoints = new ArrayList<>();
+		int count = 0;
+		for (TrackerServiceEndpoint trackerServiceEndpoint : trackerResponseEntities.getBody()) {
+			trackerServiceEndpoints.add(trackerServiceEndpoint);
+			count++;
+		}
+		logger.trace("loaded " + count + " trackerservice endpoints");
 
 		logger.trace("retrieving media service endpoint from configuration service");
 		ResponseEntity<MediaServiceEndpoint[]> mediaResponseEntities = configService.getForEntity(configurationServiceUrl + "/media/endpoints", MediaServiceEndpoint[].class);
 		mediaServiceEndpoints = new ArrayList<>();
-		int count = 0;
+		count = 0;
 		for (MediaServiceEndpoint mediaServiceEndpoint : mediaResponseEntities.getBody()) {
 			mediaServiceEndpoints.add(mediaServiceEndpoint);
 			count++;

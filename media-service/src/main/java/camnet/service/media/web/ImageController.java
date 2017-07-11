@@ -38,7 +38,7 @@ public class ImageController {
 	private String configurationServiceUserName;
 	private String configurationServicePassWord;
 
-	private TrackerServiceEndpoint trackerServiceEndpoint;
+	private List<TrackerServiceEndpoint> trackerServiceEndpoints;
 
 	private CameraManifest manifest;
 
@@ -90,14 +90,23 @@ public class ImageController {
 
 		configService = new RestTemplate();
 		logger.trace("retrieving tracker service endpoint from configuration service");
-		ResponseEntity<TrackerServiceEndpoint> trackerResponseEntity = configService.getForEntity(configurationServiceUrl, TrackerServiceEndpoint.class);
-		trackerServiceEndpoint = trackerResponseEntity.getBody();
+		ResponseEntity<TrackerServiceEndpoint[]> trackerResponseEntity = configService.getForEntity(configurationServiceUrl, TrackerServiceEndpoint[].class);
+		trackerServiceEndpoints = new ArrayList<>();
+		int count = 0;
+		for (TrackerServiceEndpoint trackerServiceEndpoint : trackerResponseEntity.getBody()) {
+			trackerServiceEndpoints.add(trackerServiceEndpoint);
+			count++;
+		}
+
+		// FIXME: add failover to other tracker service endpoints
+		TrackerServiceEndpoint trackerServiceEndpoint = trackerServiceEndpoints.get(0);
+		String trackerServiceEndpointUrl = trackerServiceEndpoint.getUrl();
 
 		trackerService = new RestTemplate();
 		logger.trace("retrieving cameras from tracker service");
-		ResponseEntity<Camera[]> responseEntity = trackerService.getForEntity(trackerServiceEndpoint.getUrl() + "/manifest/cameras", Camera[].class);
+		ResponseEntity<Camera[]> responseEntity = trackerService.getForEntity(trackerServiceEndpointUrl + "/manifest/cameras", Camera[].class);
 		List<Camera> cameras = new ArrayList<>();
-		int count = 0;
+		count = 0;
 		for (Camera camera : responseEntity.getBody()) {
 			manifest.addCamera(camera);
 			count++;

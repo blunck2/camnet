@@ -1,6 +1,7 @@
 package camnet.model;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 
 public class Camera {
@@ -60,6 +61,20 @@ public class Camera {
                  	.append(sleepTimeInSeconds, rhs.sleepTimeInSeconds)
                  	.isEquals();
         return isEquals;
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this).
+				append("id", id).
+				append("fileName", fileName).
+				append("environment", environment).
+				append("cameraName", cameraName).
+				append("url", url).
+				append("userName", userName).
+				append("password", password).
+				append("sleepTimeInSeconds", sleepTimeInSeconds).
+				toString();
 	}
 
 }

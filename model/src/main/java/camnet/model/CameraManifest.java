@@ -11,6 +11,9 @@ import java.util.Set;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+
 public class CameraManifest {
 	private Map<String, List<Camera>> cameras;
 
@@ -90,5 +93,12 @@ public class CameraManifest {
 		}
 
 		return allCameras;
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this).
+				append("cameras", cameras).
+				toString();
 	}
 }

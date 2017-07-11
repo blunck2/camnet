@@ -2,6 +2,9 @@ package camnet.model;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+
 /**
  * The response from an image post.
  */
@@ -21,5 +24,14 @@ public class ImagePostResponse implements Serializable {
 	public int getSleepTimeInSeconds() { return sleepTimeInSeconds; }
 	public void setSleepTimeInSeconds(int sleepTimeInSeconds) { 
 		this.sleepTimeInSeconds = sleepTimeInSeconds; 
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this).
+				append("code", code).
+				append("message", message).
+				append("sleepTimeInSeconds", sleepTimeInSeconds).
+				toString();
 	}
 }

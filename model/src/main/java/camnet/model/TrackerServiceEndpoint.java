@@ -2,6 +2,8 @@ package camnet.model;
 
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 
 public class TrackerServiceEndpoint {
   private String url;
@@ -33,6 +35,15 @@ public class TrackerServiceEndpoint {
         .append(passWord, rhs.passWord)
         .isEquals();
     return isEquals;
+  }
+
+  @Override
+  public String toString() {
+    return new ToStringBuilder(this).
+        append("url", url).
+        append("userName", userName).
+        append("passWord", passWord).
+        toString();
   }
 
 

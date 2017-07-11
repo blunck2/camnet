@@ -4,8 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
-
 import javax.annotation.PostConstruct;
+
+import java.util.List;
 
 import camnet.model.TrackerServiceEndpoint;
 
@@ -13,7 +14,7 @@ import camnet.model.TrackerServiceEndpoint;
 @RestController
 @RequestMapping("/tracker")
 public class TrackerServiceEndpointController {
-  private TrackerServiceEndpoint endpoint;
+  private List<TrackerServiceEndpoint> endpoints;
 
   private Logger logger = LoggerFactory.getLogger(TrackerServiceEndpointController.class);
 
@@ -22,16 +23,16 @@ public class TrackerServiceEndpointController {
   public void setUp() {
   }
 
-  @RequestMapping("/endpoint")
-  public TrackerServiceEndpoint getServiceEndpoint() {
-    return endpoint;
+  @RequestMapping("/endpoints")
+  public List<TrackerServiceEndpoint> getServiceEndpoints() {
+    return endpoints;
   }
 
-  @PostMapping("/endpoint")
-  public TrackerServiceEndpoint setServiceEndpoint(@RequestBody TrackerServiceEndpoint endpoint) {
-    logger.info("tracker endpoint: " + endpoint.getUrl());
+  @PostMapping("/endpoints")
+  public List<TrackerServiceEndpoint> setServiceEndpoints(@RequestBody List<TrackerServiceEndpoint> endpoints) {
+    logger.info("tracker endpoints: " + endpoints);
 
-    this.endpoint = endpoint;
-    return endpoint;
+    this.endpoints = endpoints;
+    return endpoints;
   }
 }

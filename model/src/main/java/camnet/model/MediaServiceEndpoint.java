@@ -1,7 +1,8 @@
 package camnet.model;
 
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 
 public class MediaServiceEndpoint {
   private String url;
@@ -35,5 +36,13 @@ public class MediaServiceEndpoint {
     return isEquals;
   }
 
+  @Override
+  public String toString() {
+    return new ToStringBuilder(this).
+        append("url", url).
+        append("userName", userName).
+        append("passWord", passWord).
+        toString();
+  }
 
 }
