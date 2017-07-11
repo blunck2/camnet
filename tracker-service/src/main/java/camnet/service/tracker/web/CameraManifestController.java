@@ -47,7 +47,9 @@ public class CameraManifestController {
                                   @PathVariable("cameraId") String cameraId) {
     CameraManifest manifest = engine.getCameraManifest();
     Camera camera = manifest.getCameraById(environment, cameraId);
-    camera.setLastUpdateEpoch(System.currentTimeMillis());
+    long currentTimeMillis = System.currentTimeMillis();
+    logger.trace("setting lastUpdateEpoch for camera '" + camera.getDisplayName() + "' to: " + currentTimeMillis);
+    camera.setLastUpdateEpoch(currentTimeMillis);
 
     return camera;
   }
