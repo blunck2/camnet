@@ -11,7 +11,7 @@ public class Camera {
 	private String cameraName;
 	private String url;
 	private String userName;
-	private String password;
+	private String passWord;
 	private int sleepTimeInSeconds;
 
 	public String getId() { return id; }
@@ -32,8 +32,8 @@ public class Camera {
 	public String getUserName() { return userName; }
 	public void setUserName(String userName) { this.userName = userName; }
 
-	public String getPassword() { return password; }
-	public void setPassword(String password) { this.password = password; }
+	public String getPassWord() { return passWord; }
+	public void setPassWord(String passWord) { this.passWord = passWord; }
 
 	public String getDisplayName() { return getEnvironment() + "/" + getCameraName(); }
 
@@ -57,7 +57,7 @@ public class Camera {
                  	.append(cameraName, rhs.cameraName)
 					.append(url, rhs.url)
 					.append(userName, rhs.userName)
-					.append(password, rhs.password)
+					.append(passWord, rhs.passWord)
                  	.append(sleepTimeInSeconds, rhs.sleepTimeInSeconds)
                  	.isEquals();
         return isEquals;
@@ -72,7 +72,7 @@ public class Camera {
 				append("cameraName", cameraName).
 				append("url", url).
 				append("userName", userName).
-				append("password", password).
+				append("passWord", passWord).
 				append("sleepTimeInSeconds", sleepTimeInSeconds).
 				toString();
 	}

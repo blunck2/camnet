@@ -6,7 +6,7 @@
     "cameraName": "Wells Driveway",
     "url": "http://192.168.100.150/cgi-bin/viewer/video.jpg",
     "userName": null,
-    "password": null,
+    "passWord": null,
     "sleepTimeInSeconds": 10
   }
 ]
