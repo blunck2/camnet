@@ -31,7 +31,9 @@ public class CameraManifest {
 	}
  
 	public Camera getCameraById(String environment, String id) {
+		logger.trace("looking for camera environment: " + environment + "; id: " + id);
 		for (Camera camera : getCamerasForEnvironment(environment)) {
+			logger.trace("got camera environment: " + camera.getEnvironment() + "; id: " + camera.getId());
 			if (id.equals(camera.getId())) {
 				return camera;
 			}
@@ -45,15 +47,15 @@ public class CameraManifest {
 	}
 	public void setCamerasForEnvironment(String environment, List<Camera> cameraList) { cameras.put(environment, cameraList); }
 
-	public void removeCameraById(String environment, String id) {
-		if (! cameras.keySet().contains(environment)) { return; }
+	public void removeCameraById(String id) {
+		for (String environment : cameras.keySet()) {
+			List<Camera> camerasForEnvironment = cameras.get(environment);
 
-		List<Camera> camerasForEnvironment = cameras.get(environment);
-
-		for (Iterator<Camera> iter = camerasForEnvironment.listIterator(); iter.hasNext();) {
-			Camera camera = iter.next();
-			if (camera.getId().equals(id)) {
-				iter.remove();
+			for (Camera camera : camerasForEnvironment) {
+				if (camera.getId().equals(id)) {
+					camerasForEnvironment.remove(camera);
+					break;
+				}
 			}
 		}
 	}
@@ -64,7 +66,7 @@ public class CameraManifest {
 
 	public void addCamera(Camera camera) {
 		String environment = camera.getEnvironment();
-		removeCameraById(environment, camera.getId());
+		removeCameraById(camera.getId());
 
 		List<Camera> existingCameras = cameras.get(environment);
 		if (existingCameras == null) {

@@ -32,7 +32,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Component
 public class AgentEngine {
-	private CameraManifest manifest;
+	private CameraManifest cameraManifest;
 
 	@Value("${AgentEngine.configurationServiceUrl}")
 	private String configurationServiceUrl;
@@ -74,7 +74,7 @@ public class AgentEngine {
 		trackerService = new RestTemplate();
 
 		retrievers = new ArrayList<>();
-		manifest = new CameraManifest();
+		cameraManifest = new CameraManifest();
 	}
 
 	public void setConfigurationServiceUrl(String restEndpoint) {
@@ -104,6 +104,14 @@ public class AgentEngine {
 	public void setEnvironments(List<String> environments) { this.environments = environments; }
 	public List<String> getEnvironments() { return environments; }
 
+	public CameraManifest getCameraManifest() {
+		return cameraManifest;
+	}
+
+	public void setCameraManifest(CameraManifest cameraManifest) {
+		this.cameraManifest = cameraManifest;
+	}
+
 	private List<Camera> getCamerasForEnvironment(String environment) {
 		// TODO: implement failover to backup trackers
 		TrackerServiceEndpoint endpoint = trackerServiceEndpoints.get(0);
@@ -112,9 +120,12 @@ public class AgentEngine {
 		String trackerServiceUserName = endpoint.getUserName();
 		String trackerServicePassWord = endpoint.getPassWord();
 		String url = trackerServiceUrl + "/manifest/cameras/environment/" + environment;
+
 		logger.info("retrieving camera manifests from: " + url);
+
 		// TODO: implement basic auth
 		// trackerService.getInterceptors().add(new BasicAuthorizationInterceptor(trackerServiceUserName, trackerServicePassWord));
+
 		ResponseEntity<Camera[]> responseEntity = trackerService.getForEntity(url, Camera[].class);
 		List<Camera> cameras = new ArrayList<>();
 		for (Camera camera : responseEntity.getBody()) {
@@ -132,26 +143,7 @@ public class AgentEngine {
 
 		createImagePublisher();
 
-		List<Camera> allCameras = new ArrayList<>();
-
-		for (String environment : environments) {
-			logger.info("getting cameras for environment: " + environment);
-			List<Camera> cameras = getCamerasForEnvironment(environment);
-			logger.info("retrieved " + cameras.size() + " cameras");
-			manifest.setCamerasForEnvironment(environment, cameras);
-			allCameras.addAll(cameras);
-		}
-
-		int cameraCount = allCameras.size();
-
-		ThreadFactoryBuilder builder = new ThreadFactoryBuilder().setNameFormat("img-producer-%d");
-
-		scheduler = Executors.newScheduledThreadPool(cameraCount, builder.build());
-		for (Camera camera : allCameras) {
-			logger.trace("starting camera: " + camera.getDisplayName());
-			startCamera(camera);
-		}
-
+		startCameras();
 	}
 
 	private void loadTrackerServiceEndpoints() {
@@ -223,6 +215,29 @@ public class AgentEngine {
 		String mediaServicePassWord = mediaServiceEndpoint.getPassWord();
 
 		publisher = new ImagePublisher(mediaServiceUrl, mediaServiceUserName, mediaServicePassWord);
+	}
+
+
+	private void startCameras() {
+		List<Camera> allCameras = new ArrayList<>();
+
+		for (String environment : environments) {
+			logger.info("getting cameras for environment: " + environment);
+			List<Camera> cameras = getCamerasForEnvironment(environment);
+			logger.info("retrieved " + cameras.size() + " cameras");
+			cameraManifest.setCamerasForEnvironment(environment, cameras);
+			allCameras.addAll(cameras);
+		}
+
+		int cameraCount = allCameras.size();
+
+		ThreadFactoryBuilder builder = new ThreadFactoryBuilder().setNameFormat("img-producer-%d");
+
+		scheduler = Executors.newScheduledThreadPool(cameraCount, builder.build());
+		for (Camera camera : allCameras) {
+			logger.trace("starting camera: " + camera.getDisplayName());
+			startCamera(camera);
+		}
 	}
 
 	private int pickMediaServiceEndpoint() {

@@ -1,6 +1,6 @@
 [
   {
-    "id": "driveway",
+    "id": "wells_driveway",
     "fileName": "driveway.jpg",
     "environment": "Wells",
     "cameraName": "Wells Driveway",
@@ -11,7 +11,7 @@
     "sleepTimeInSeconds": 60
   },
   {
-    "id": "yard",
+    "id": "wells_yard",
     "fileName": "frontyard.jpg",
     "environment": "Wells",
     "cameraName": "Wells Yard",
@@ -22,7 +22,7 @@
     "sleepTimeInSeconds": 60
   },
   {
-    "id": "garage",
+    "id": "wells_garage",
     "fileName": "garage.jpg",
     "environment": "Wells",
     "cameraName": "Wells Garage",
@@ -33,7 +33,7 @@
     "sleepTimeInSeconds": 60
   },
   {
-    "id": "ramp",
+    "id": "soundsets_ramp",
     "fileName": "ramp.jpg",
     "environment": "Soundsets",
     "cameraName": "Soundsets Ramp",
@@ -44,7 +44,7 @@
     "sleepTimeInSeconds": 60
   },
   {
-    "id": "driveway",
+    "id": "soundsets_driveway",
     "fileName": "driveway.jpg",
     "environment": "Soundsets",
     "cameraName": "Soundsets Driveway",
@@ -55,7 +55,7 @@
     "sleepTimeInSeconds": 60
   },
   {
-    "id": "westside",
+    "id": "soundsets_westside",
     "fileName": "westside.jpg",
     "environment": "Soundsets",
     "cameraName": "Soundsets West Side",
@@ -66,7 +66,7 @@
     "sleepTimeInSeconds": 60
   },
   {
-    "id": "driveway",
+    "id": "seabreezes_driveway",
     "fileName": "driveway.jpg",
     "environment": "SeaBreezes",
     "cameraName": "SeaBreezes Driveway",
@@ -77,7 +77,7 @@
     "sleepTimeInSeconds": 60
   },
   {
-    "id": "yard",
+    "id": "seabreezes_yard",
     "fileName": "yard.jpg",
     "environment": "SeaBreezes",
     "cameraName": "SeaBreezes Yard",
@@ -88,7 +88,7 @@
     "sleepTimeInSeconds": 60
   },
   {
-    "id": "driveway",
+    "id": "secondwind_driveway",
     "fileName": "driveway.jpg",
     "environment": "SecondWind",
     "cameraName": "SecondWind Driveway",
@@ -99,7 +99,7 @@
     "sleepTimeInSeconds": 60
   },
   {
-    "id": "pooldeck",
+    "id": "secondwind_pooldeck",
     "fileName": "pooldeck.jpg",
     "environment": "SecondWind",
     "cameraName": "SecondWind Pool Deck",
@@ -110,8 +110,8 @@
     "sleepTimeInSeconds": 60
   },
   {
-    "id": "deck",
-    "fileName": "deck.jpg",
+    "id": "grandview_pooldeck",
+    "fileName": "pooldeck.jpg",
     "environment": "GrandView",
     "cameraName": "GrandView Pool Deck",
     "displayName": "GrandView/PoolDeck",
@@ -121,7 +121,7 @@
     "sleepTimeInSeconds": 60
   },
   {
-    "id": "driveway",
+    "id": "grandview_driveway",
     "fileName": "driveway.jpg",
     "environment": "GrandView",
     "cameraName": "GrandView Driveway",
@@ -132,7 +132,7 @@
     "sleepTimeInSeconds": 60
   },
   {
-    "id": "ocean",
+    "id": "grandview_ocean",
     "fileName": "ocean.jpg",
     "environment": "GrandView",
     "cameraName": "GrandView Ocean",
@@ -143,7 +143,7 @@
     "sleepTimeInSeconds": 60
   },
   {
-    "id": "backyard",
+    "id": "caravan_backyard",
     "fileName": "backyard_fixed.jpg",
     "environment": "Caravan",
     "cameraName": "Caravan Back Yard",
@@ -154,7 +154,7 @@
     "sleepTimeInSeconds": 60
   },
   {
-    "id": "frontyard",
+    "id": "caravan_frontyard",
     "fileName": "frontyard.jpg",
     "environment": "Caravan",
     "cameraName": "Caravan Front Yard",
@@ -165,7 +165,7 @@
     "sleepTimeInSeconds": 60
   },
   {
-    "id": "backyard",
+    "id": "caravan_backyard",
     "fileName": "backyard.jpg",
     "environment": "Eversfield",
     "cameraName": "Eversfield Back Yard",
@@ -176,7 +176,7 @@
     "sleepTimeInSeconds": 60
   },
   {
-    "id": "driveway",
+    "id": "eversfield_driveway",
     "fileName": "driveway.jpg",
     "environment": "Eversfield",
     "cameraName": "Eversfield Driveway",
@@ -187,7 +187,7 @@
     "sleepTimeInSeconds": 60
   },
   {
-    "id": "south",
+    "id": "eversfield_south",
     "fileName": "south.jpg",
     "environment": "Eversfield",
     "cameraName": "Eversfield South",
@@ -198,7 +198,7 @@
     "sleepTimeInSeconds": 60
   },
   {
-    "id": "driveway",
+    "id": "wells_driveway",
     "fileName": "driveway.jpg",
     "environment": "OneCamera",
     "cameraName": "Wells Driveway",
