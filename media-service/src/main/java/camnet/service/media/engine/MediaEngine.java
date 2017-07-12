@@ -1,6 +1,5 @@
-package camnet.service.tracker.engine;
+package camnet.service.media.engine;
 
-import camnet.model.CameraManifest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,23 +11,21 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 
-import camnet.model.TrackerServiceEndpoint;
+import camnet.model.MediaServiceEndpoint;
 
 import org.springframework.web.client.RestTemplate;
 
 
 
 @Component
-public class TrackerEngine {
-  private CameraManifest manifest;
-
-  @Value("${TrackerEngine.configurationRestEndpoint}")
+public class MediaEngine {
+  @Value("${MediaEngine.configurationRestEndpoint}")
   private String configurationServiceUrl;
 
-  @Value("${TrackerEngine.configurationUserName}")
+  @Value("${MediaEngine.configurationUserName}")
   private String configurationServiceUserName;
 
-  @Value("${TrackerEngine.configurationPassWord}")
+  @Value("${MediaEngine.configurationPassWord}")
   private String configurationServicePassWord;
 
   @Value("${server.port}")
@@ -39,16 +36,14 @@ public class TrackerEngine {
 
   private RestTemplate configService;
 
-  private Logger logger = LoggerFactory.getLogger(TrackerEngine.class);
+  private Logger logger = LoggerFactory.getLogger(MediaEngine.class);
 
-  public TrackerEngine() {
+  public MediaEngine() {
     configService = new RestTemplate();
   }
 
   @PostConstruct
   public void setUp() {
-    manifest = new CameraManifest();
-
     registerWithConfigurationService();
   }
 
@@ -76,9 +71,6 @@ public class TrackerEngine {
     this.configurationServicePassWord = configurationServicePassWord;
   }
 
-  public CameraManifest getCameraManifest() { return manifest; }
-  public void setCameraManifest(CameraManifest manifest) { this.manifest = manifest; }
-
 
   private void registerWithConfigurationService() {
     logger.trace("registering with configuration service");
@@ -94,14 +86,14 @@ public class TrackerEngine {
 
     String serviceEndpointUrl = "http://" + hostName + ":" + localListenPort + localContextPath;
 
-    TrackerServiceEndpoint endpoint = new TrackerServiceEndpoint();
+    MediaServiceEndpoint endpoint = new MediaServiceEndpoint();
     endpoint.setUrl(serviceEndpointUrl);
     endpoint.setUserName("");
     endpoint.setPassWord("");
 
-    String url = configurationServiceUrl + "/tracker/endpoint/add";
-    TrackerServiceEndpoint result =
-        configService.postForObject(url, endpoint, TrackerServiceEndpoint.class, new HashMap<String, String>());
+    String url = configurationServiceUrl + "/media/endpoint/add";
+    MediaServiceEndpoint result =
+        configService.postForObject(url, endpoint, MediaServiceEndpoint.class, new HashMap<String, String>());
   }
 
 }

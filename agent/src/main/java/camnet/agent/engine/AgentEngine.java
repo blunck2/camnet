@@ -31,22 +31,22 @@ import org.springframework.web.client.RestTemplate;
 
 
 @Component
-public class CameraPublishingEngine {
+public class AgentEngine {
 	private CameraManifest manifest;
 
-	@Value("${CameraPublishingEngine.configurationServiceUrl}")
+	@Value("${AgentEngine.configurationServiceUrl}")
 	private String configurationServiceUrl;
 
-	@Value("${CameraPublishingEngine.configurationServiceUserName}")
+	@Value("${AgentEngine.configurationServiceUserName}")
 	private String configurationServiceUserName;
 
-	@Value("${CameraPublishingEngine.configurationServicePassWord}")
+	@Value("${AgentEngine.configurationServicePassWord}")
 	private String configurationServicePassword;
 
 	private List<MediaServiceEndpoint> mediaServiceEndpoints;
 	private List<TrackerServiceEndpoint> trackerServiceEndpoints;
 
-	@Value("#{'${CameraPublishingEngine.environments}'.split(',')}")
+	@Value("#{'${AgentEngine.environments}'.split(',')}")
 	private List<String> environments;
 
 	private RestTemplate configService;
@@ -61,15 +61,15 @@ public class CameraPublishingEngine {
 	private ObjectMapper mapper;
 
 	@Value("${server.port}")
-	private String listenPortStr;
+	private String localListenPort;
 
 	@Value("${server.contextPath}")
-	private String agentContextPath;
+	private String localContextPath;
 
-	private Logger logger = LoggerFactory.getLogger(CameraPublishingEngine.class);
+	private Logger logger = LoggerFactory.getLogger(AgentEngine.class);
 
 
-	public CameraPublishingEngine() {
+	public AgentEngine() {
 		configService = new RestTemplate();
 		trackerService = new RestTemplate();
 
@@ -128,7 +128,7 @@ public class CameraPublishingEngine {
 	public void init() {
 		loadTrackerServiceEndpoints();
 		loadMediaServiceEndpoints();
-		registerAgent();
+		registerWithConfigurationService();
 
 		createImagePublisher();
 
@@ -189,8 +189,8 @@ public class CameraPublishingEngine {
 		logger.trace("loaded " + count + " media service endpoints");
 	}
 
-	private void registerAgent() {
-		logger.trace("registering agent with configuration service");
+	private void registerWithConfigurationService() {
+		logger.trace("registering with configuration service");
 
 		// resolve hostname to be used in callbacks
 		String hostName = null;
@@ -201,16 +201,16 @@ public class CameraPublishingEngine {
 			hostName = "localhost";
 		}
 
-		String agentServiceEndpointUrl = "http://" + hostName + ":" + listenPortStr + agentContextPath;
+		String serviceEndpointUrl = "http://" + hostName + ":" + localListenPort + localContextPath;
 
-		AgentServiceEndpoint agentServiceEndpoint = new AgentServiceEndpoint();
-		agentServiceEndpoint.setUrl(agentServiceEndpointUrl);
-		agentServiceEndpoint.setUserName("");
-		agentServiceEndpoint.setPassWord("");
+		AgentServiceEndpoint endpoint = new AgentServiceEndpoint();
+		endpoint.setUrl(serviceEndpointUrl);
+		endpoint.setUserName("");
+		endpoint.setPassWord("");
 
 		String url = configurationServiceUrl + "/agent/endpoint/add";
 		AgentServiceEndpoint result =
-				configService.postForObject(url, agentServiceEndpoint, AgentServiceEndpoint.class, new HashMap<String, String>());
+				configService.postForObject(url, endpoint, AgentServiceEndpoint.class, new HashMap<String, String>());
 	}
 
 	private void createImagePublisher() {

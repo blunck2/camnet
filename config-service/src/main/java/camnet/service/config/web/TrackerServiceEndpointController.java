@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.PostConstruct;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import camnet.model.TrackerServiceEndpoint;
 
@@ -18,9 +19,9 @@ public class TrackerServiceEndpointController {
 
   private Logger logger = LoggerFactory.getLogger(TrackerServiceEndpointController.class);
 
-
   @PostConstruct
   public void setUp() {
+    endpoints = new ArrayList<>();
   }
 
   @RequestMapping("/endpoints")

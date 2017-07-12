@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import javax.annotation.PostConstruct;
 
@@ -21,6 +22,7 @@ public class MediaServiceEndpointController {
 
   @PostConstruct
   public void setUp() {
+    endpoints = new ArrayList<>();
   }
 
   @RequestMapping("/endpoints")
