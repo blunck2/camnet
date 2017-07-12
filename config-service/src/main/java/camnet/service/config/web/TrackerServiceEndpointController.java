@@ -35,4 +35,15 @@ public class TrackerServiceEndpointController {
     this.endpoints = endpoints;
     return endpoints;
   }
+
+  @PostMapping("/endpoint/add")
+  public TrackerServiceEndpoint addServiceEndpoint(@RequestBody TrackerServiceEndpoint endpoint) {
+    logger.info("adding endpoint: " + endpoint);
+
+    if (! endpoints.contains(endpoint)) {
+      endpoints.add(endpoint);
+    }
+
+    return endpoint;
+  }
 }

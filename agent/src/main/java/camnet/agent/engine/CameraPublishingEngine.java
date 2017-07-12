@@ -1,9 +1,10 @@
-package camnet.client.engine;
+package camnet.agent.engine;
 
 import camnet.model.Camera;
 import camnet.model.CameraManifest;
 import camnet.model.MediaServiceEndpoint;
 import camnet.model.TrackerServiceEndpoint;
+import camnet.model.AgentServiceEndpoint;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.HashMap;
 
 import java.util.concurrent.*;
 import java.lang.Runnable;
@@ -48,6 +50,7 @@ public class CameraPublishingEngine {
 	private List<String> environments;
 
 	private RestTemplate configService;
+	private RestTemplate trackerService;
 
 	private List<Runnable> retrievers;
 
@@ -55,15 +58,21 @@ public class CameraPublishingEngine {
 
 	private ImagePublisher publisher;
 
-	private RestTemplate template;
-
 	private ObjectMapper mapper;
+
+	@Value("${server.port}")
+	private String listenPortStr;
+
+	@Value("${server.contextPath}")
+	private String agentContextPath;
 
 	private Logger logger = LoggerFactory.getLogger(CameraPublishingEngine.class);
 
 
 	public CameraPublishingEngine() {
-		template = new RestTemplate();
+		configService = new RestTemplate();
+		trackerService = new RestTemplate();
+
 		retrievers = new ArrayList<>();
 		manifest = new CameraManifest();
 	}
@@ -96,7 +105,6 @@ public class CameraPublishingEngine {
 	public List<String> getEnvironments() { return environments; }
 
 	private List<Camera> getCamerasForEnvironment(String environment) {
-
 		// TODO: implement failover to backup trackers
 		TrackerServiceEndpoint endpoint = trackerServiceEndpoints.get(0);
 
@@ -105,8 +113,9 @@ public class CameraPublishingEngine {
 		String trackerServicePassWord = endpoint.getPassWord();
 		String url = trackerServiceUrl + "/manifest/cameras/environment/" + environment;
 		logger.info("retrieving camera manifests from: " + url);
-//		template.getInterceptors().add(new BasicAuthorizationInterceptor(trackerServiceUserName, trackerServicePassWord));
-		ResponseEntity<Camera[]> responseEntity = template.getForEntity(url, Camera[].class);
+		// TODO: implement basic auth
+		// trackerService.getInterceptors().add(new BasicAuthorizationInterceptor(trackerServiceUserName, trackerServicePassWord));
+		ResponseEntity<Camera[]> responseEntity = trackerService.getForEntity(url, Camera[].class);
 		List<Camera> cameras = new ArrayList<>();
 		for (Camera camera : responseEntity.getBody()) {
 			cameras.add(camera);
@@ -117,32 +126,11 @@ public class CameraPublishingEngine {
 
 	@PostConstruct
 	public void init() {
-		configService = new RestTemplate();
-		logger.trace("retrieving tracker service endpoint from configuration service");
-		ResponseEntity<TrackerServiceEndpoint[]> trackerResponseEntities = configService.getForEntity(configurationServiceUrl + "/tracker/endpoints", TrackerServiceEndpoint[].class);
-		trackerServiceEndpoints = new ArrayList<>();
-		int count = 0;
-		for (TrackerServiceEndpoint trackerServiceEndpoint : trackerResponseEntities.getBody()) {
-			trackerServiceEndpoints.add(trackerServiceEndpoint);
-			count++;
-		}
-		logger.trace("loaded " + count + " trackerservice endpoints");
+		loadTrackerServiceEndpoints();
+		loadMediaServiceEndpoints();
+		registerAgent();
 
-		logger.trace("retrieving media service endpoint from configuration service");
-		ResponseEntity<MediaServiceEndpoint[]> mediaResponseEntities = configService.getForEntity(configurationServiceUrl + "/media/endpoints", MediaServiceEndpoint[].class);
-		mediaServiceEndpoints = new ArrayList<>();
-		count = 0;
-		for (MediaServiceEndpoint mediaServiceEndpoint : mediaResponseEntities.getBody()) {
-			mediaServiceEndpoints.add(mediaServiceEndpoint);
-			count++;
-		}
-		logger.trace("loaded " + count + " media service endpoints");
-
-		MediaServiceEndpoint mediaServiceEndpoint = mediaServiceEndpoints.get(0);
-		String mediaServiceUrl = mediaServiceEndpoint.getUrl();
-		String mediaServiceUserName = mediaServiceEndpoint.getUserName();
-		String mediaServicePassWord = mediaServiceEndpoint.getPassWord();
-		publisher = new ImagePublisher(mediaServiceUrl, mediaServiceUserName, mediaServicePassWord);
+		createImagePublisher();
 
 		List<Camera> allCameras = new ArrayList<>();
 
@@ -164,6 +152,82 @@ public class CameraPublishingEngine {
 			startCamera(camera);
 		}
 
+	}
+
+	private void loadTrackerServiceEndpoints() {
+		logger.trace("retrieving tracker service endpoint from configuration service");
+
+		String url = configurationServiceUrl + "/tracker/endpoints";
+		ResponseEntity<TrackerServiceEndpoint[]> trackerResponseEntities = configService.getForEntity(url, TrackerServiceEndpoint[].class);
+
+		trackerServiceEndpoints = new ArrayList<>();
+
+		int count = 0;
+		for (TrackerServiceEndpoint trackerServiceEndpoint : trackerResponseEntities.getBody()) {
+			trackerServiceEndpoints.add(trackerServiceEndpoint);
+			count++;
+		}
+
+		logger.trace("loaded " + count + " tracker service endpoints");
+	}
+
+
+	private void loadMediaServiceEndpoints() {
+		logger.trace("retrieving media service endpoint from configuration service");
+
+		String url = configurationServiceUrl + "/media/endpoints";
+		ResponseEntity<MediaServiceEndpoint[]> mediaResponseEntities = configService.getForEntity(url, MediaServiceEndpoint[].class);
+
+		mediaServiceEndpoints = new ArrayList<>();
+
+		int count = 0;
+		for (MediaServiceEndpoint mediaServiceEndpoint : mediaResponseEntities.getBody()) {
+			mediaServiceEndpoints.add(mediaServiceEndpoint);
+			count++;
+		}
+
+		logger.trace("loaded " + count + " media service endpoints");
+	}
+
+	private void registerAgent() {
+		logger.trace("registering agent with configuration service");
+
+		// resolve hostname to be used in callbacks
+		String hostName = null;
+		try {
+			hostName = java.net.InetAddress.getLocalHost().getCanonicalHostName();
+		} catch (java.net.UnknownHostException e) {
+			logger.error("failed to resolve DNS name.  using localhost.", e);
+			hostName = "localhost";
+		}
+
+		String agentServiceEndpointUrl = "http://" + hostName + ":" + listenPortStr + agentContextPath;
+
+		AgentServiceEndpoint agentServiceEndpoint = new AgentServiceEndpoint();
+		agentServiceEndpoint.setUrl(agentServiceEndpointUrl);
+		agentServiceEndpoint.setUserName("");
+		agentServiceEndpoint.setPassWord("");
+
+		String url = configurationServiceUrl + "/agent/endpoint/add";
+		AgentServiceEndpoint result =
+				configService.postForObject(url, agentServiceEndpoint, AgentServiceEndpoint.class, new HashMap<String, String>());
+	}
+
+	private void createImagePublisher() {
+		int mediaServiceEndpointPos = pickMediaServiceEndpoint();
+
+		MediaServiceEndpoint mediaServiceEndpoint = mediaServiceEndpoints.get(mediaServiceEndpointPos);
+
+		String mediaServiceUrl = mediaServiceEndpoint.getUrl();
+		String mediaServiceUserName = mediaServiceEndpoint.getUserName();
+		String mediaServicePassWord = mediaServiceEndpoint.getPassWord();
+
+		publisher = new ImagePublisher(mediaServiceUrl, mediaServiceUserName, mediaServicePassWord);
+	}
+
+	private int pickMediaServiceEndpoint() {
+		// TODO: pick a random media service
+		return 0;
 	}
 
 

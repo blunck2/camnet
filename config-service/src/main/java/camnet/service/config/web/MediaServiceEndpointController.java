@@ -35,4 +35,15 @@ public class MediaServiceEndpointController {
     this.endpoints = endpoints;
     return endpoints;
   }
+
+  @PostMapping("/endpoint/add")
+  public MediaServiceEndpoint addServiceEndpoint(@RequestBody MediaServiceEndpoint endpoint) {
+    logger.info("adding endpoint: " + endpoint);
+
+    if (! endpoints.contains(endpoint)) {
+      endpoints.add(endpoint);
+    }
+
+    return endpoint;
+  }
 }

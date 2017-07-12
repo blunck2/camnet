@@ -1,4 +1,4 @@
-package camnet.client.engine;
+package camnet.agent.engine;
 
 public class ImageProductionResponse {
 	private int returnCode;
