@@ -81,7 +81,7 @@ public class S3ImageProcessor implements ImageProcessor {
     }
 
     public int processImage(Camera camera, MultipartFile image, Map<String, String> imageHeaders) throws ImageProcessingException {
-        String objectId = camera.getEnvironment() + "-" + camera.getId();
+        String objectId = camera.getId();
         byte[] bytes;
         try {
             bytes = IOUtils.toByteArray(image.getInputStream());
