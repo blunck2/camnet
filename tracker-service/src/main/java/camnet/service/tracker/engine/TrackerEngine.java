@@ -4,6 +4,7 @@ import camnet.model.CameraManifest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 
@@ -14,21 +15,19 @@ import java.util.HashMap;
 
 import camnet.model.TrackerServiceEndpoint;
 
-import org.springframework.web.client.RestTemplate;
-
 
 
 @Component
 public class TrackerEngine {
   private CameraManifest manifest;
 
-  @Value("${TrackerEngine.configurationRestEndpoint}")
+  @Value("${ConfigurationRestEndpoint}")
   private String configurationServiceUrl;
 
-  @Value("${TrackerEngine.configurationUserName}")
+  @Value("${ConfigurationUserName}")
   private String configurationServiceUserName;
 
-  @Value("${TrackerEngine.configurationPassWord}")
+  @Value("${ConfigurationPassWord}")
   private String configurationServicePassWord;
 
   @Value("${server.port}")
@@ -37,7 +36,12 @@ public class TrackerEngine {
   @Value("${server.contextPath}")
   private String localContextPath;
 
+  @Value("${BalancerCycleTimeInSeconds}")
+  private int balancerCycleTimeInSeconds;
+
   private RestTemplate configService;
+
+  private AgentBalancer balancer;
 
   private Logger logger = LoggerFactory.getLogger(TrackerEngine.class);
 
@@ -50,6 +54,8 @@ public class TrackerEngine {
     manifest = new CameraManifest();
 
     registerWithConfigurationService();
+
+    startAgentBalancer();
   }
 
   public String getConfigurationServiceUrl() {
@@ -74,6 +80,14 @@ public class TrackerEngine {
 
   public void setConfigurationServicePassWord(String configurationServicePassWord) {
     this.configurationServicePassWord = configurationServicePassWord;
+  }
+
+  public int getBalancerCycleTimeInSeconds() {
+    return balancerCycleTimeInSeconds;
+  }
+
+  public void setBalancerCycleTimeInSeconds(int balancerCycleTimeInSeconds) {
+    this.balancerCycleTimeInSeconds = balancerCycleTimeInSeconds;
   }
 
   public CameraManifest getCameraManifest() { return manifest; }
@@ -102,6 +116,13 @@ public class TrackerEngine {
     String url = configurationServiceUrl + "/tracker/endpoint/add";
     TrackerServiceEndpoint result =
         configService.postForObject(url, endpoint, TrackerServiceEndpoint.class, new HashMap<String, String>());
+  }
+
+  private void startAgentBalancer() {
+    balancer = new AgentBalancer();
+    balancer.setManifest(manifest);
+    balancer.setCycleTimeInSeconds(balancerCycleTimeInSeconds);
+    balancer.start();
   }
 
 }
