@@ -39,6 +39,9 @@ public class TrackerEngine {
   @Value("${BalancerCycleTimeInSeconds}")
   private int balancerCycleTimeInSeconds;
 
+  @Value("${BalancerCycleMissCountBeforeReassignment}")
+  private int balancerCycleMissCountBeforeReassignment;
+
   private RestTemplate configService;
 
   private AgentBalancer balancer;
@@ -90,6 +93,14 @@ public class TrackerEngine {
     this.balancerCycleTimeInSeconds = balancerCycleTimeInSeconds;
   }
 
+  public int getBalancerCycleMissCountBeforeReassignment() {
+    return balancerCycleMissCountBeforeReassignment;
+  }
+
+  public void setBalancerCycleMissCountBeforeReassignment(int balancerCycleMissCountBeforeReassignment) {
+    this.balancerCycleMissCountBeforeReassignment = balancerCycleMissCountBeforeReassignment;
+  }
+
   public CameraManifest getCameraManifest() { return manifest; }
   public void setCameraManifest(CameraManifest manifest) { this.manifest = manifest; }
 
@@ -120,8 +131,11 @@ public class TrackerEngine {
 
   private void startAgentBalancer() {
     balancer = new AgentBalancer();
+
     balancer.setManifest(manifest);
     balancer.setCycleTimeInSeconds(balancerCycleTimeInSeconds);
+    balancer.setCycleMissCountBeforeReassignment(balancerCycleMissCountBeforeReassignment);
+
     balancer.start();
   }
 
