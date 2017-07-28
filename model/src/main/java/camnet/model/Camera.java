@@ -15,6 +15,7 @@ public class Camera {
 	private String passWord;
 	private int sleepTimeInSeconds;
 	private long lastUpdateEpoch;
+	private AgentServiceEndpoint agent;
 
 	public String getId() { return id; }
 	public void setId(String id) { this.id = id; }
@@ -56,6 +57,14 @@ public class Camera {
 		this.lastUpdateEpoch = lastUpdateEpoch;
 	}
 
+	public AgentServiceEndpoint getAgent() {
+		return agent;
+	}
+
+	public void setAgent(AgentServiceEndpoint agent) {
+		this.agent = agent;
+	}
+
 	@Override public boolean equals(Object obj) {
    		if (obj == null) { return false; }
    		if (obj == this) { return true; }
@@ -76,23 +85,25 @@ public class Camera {
 									.append(passWord, rhs.passWord)
                  	.append(sleepTimeInSeconds, rhs.sleepTimeInSeconds)
 									.append(lastUpdateEpoch, rhs.lastUpdateEpoch)
+									.append(agent, rhs.agent)
                  	.isEquals();
         return isEquals;
 	}
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this).
-				append("id", id).
-				append("fileName", fileName).
-				append("environment", environment).
-				append("cameraName", cameraName).
-				append("url", url).
-				append("userName", userName).
-				append("passWord", passWord).
-				append("sleepTimeInSeconds", sleepTimeInSeconds).
-				append("lastUpdateEpoch", lastUpdateEpoch).
-				toString();
+		return new ToStringBuilder(this)
+				.append("id", id)
+				.append("fileName", fileName)
+				.append("environment", environment)
+				.append("cameraName", cameraName)
+				.append("url", url)
+				.append("userName", userName)
+				.append("passWord", passWord)
+				.append("sleepTimeInSeconds", sleepTimeInSeconds)
+				.append("lastUpdateEpoch", lastUpdateEpoch)
+				.append("agent", agent)
+				.toString();
 	}
 
 }

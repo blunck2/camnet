@@ -19,7 +19,6 @@ public class CameraManifest {
 
 	private Logger logger = LogManager.getLogger();
 
-
 	public CameraManifest() { cameras = new HashMap<>(); }
 
 	public Map<String, List<Camera>> getCameras() {
@@ -100,8 +99,8 @@ public class CameraManifest {
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this).
-				append("cameras", cameras).
-				toString();
+		return new ToStringBuilder(this)
+				.append("cameras", cameras)
+				.toString();
 	}
 }

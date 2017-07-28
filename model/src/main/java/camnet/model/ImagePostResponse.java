@@ -28,10 +28,10 @@ public class ImagePostResponse implements Serializable {
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this).
-				append("code", code).
-				append("message", message).
-				append("sleepTimeInSeconds", sleepTimeInSeconds).
-				toString();
+		return new ToStringBuilder(this)
+				.append("code", code)
+				.append("message", message)
+				.append("sleepTimeInSeconds", sleepTimeInSeconds)
+				.toString();
 	}
 }

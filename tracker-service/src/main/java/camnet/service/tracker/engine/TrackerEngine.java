@@ -1,6 +1,8 @@
 package camnet.service.tracker.engine;
 
 import camnet.model.CameraManifest;
+import camnet.model.AgentManifest;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,7 +21,8 @@ import camnet.model.TrackerServiceEndpoint;
 
 @Component
 public class TrackerEngine {
-  private CameraManifest manifest;
+  private CameraManifest cameraManifest;
+  private AgentManifest agentManifest;
 
   @Value("${ConfigurationRestEndpoint}")
   private String configurationServiceUrl;
@@ -36,14 +39,9 @@ public class TrackerEngine {
   @Value("${server.contextPath}")
   private String localContextPath;
 
-  @Value("${BalancerCycleTimeInSeconds}")
-  private int balancerCycleTimeInSeconds;
-
-  @Value("${BalancerCycleMissCountBeforeReassignment}")
-  private int balancerCycleMissCountBeforeReassignment;
-
   private RestTemplate configService;
 
+  @Autowired
   private AgentBalancer balancer;
 
   private Logger logger = LoggerFactory.getLogger(TrackerEngine.class);
@@ -54,7 +52,8 @@ public class TrackerEngine {
 
   @PostConstruct
   public void setUp() {
-    manifest = new CameraManifest();
+    cameraManifest = new CameraManifest();
+    agentManifest = new AgentManifest();
 
     registerWithConfigurationService();
 
@@ -85,24 +84,9 @@ public class TrackerEngine {
     this.configurationServicePassWord = configurationServicePassWord;
   }
 
-  public int getBalancerCycleTimeInSeconds() {
-    return balancerCycleTimeInSeconds;
-  }
+  public CameraManifest getCameraManifest() { return cameraManifest; }
 
-  public void setBalancerCycleTimeInSeconds(int balancerCycleTimeInSeconds) {
-    this.balancerCycleTimeInSeconds = balancerCycleTimeInSeconds;
-  }
-
-  public int getBalancerCycleMissCountBeforeReassignment() {
-    return balancerCycleMissCountBeforeReassignment;
-  }
-
-  public void setBalancerCycleMissCountBeforeReassignment(int balancerCycleMissCountBeforeReassignment) {
-    this.balancerCycleMissCountBeforeReassignment = balancerCycleMissCountBeforeReassignment;
-  }
-
-  public CameraManifest getCameraManifest() { return manifest; }
-  public void setCameraManifest(CameraManifest manifest) { this.manifest = manifest; }
+  public AgentManifest getAgentManifest() { return agentManifest; }
 
 
   private void registerWithConfigurationService() {
@@ -130,11 +114,7 @@ public class TrackerEngine {
   }
 
   private void startAgentBalancer() {
-    balancer = new AgentBalancer();
-
-    balancer.setManifest(manifest);
-    balancer.setCycleTimeInSeconds(balancerCycleTimeInSeconds);
-    balancer.setCycleMissCountBeforeReassignment(balancerCycleMissCountBeforeReassignment);
+    balancer.setCameraManifest(cameraManifest);
 
     balancer.start();
   }

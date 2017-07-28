@@ -1,5 +1,7 @@
 package camnet.agent.engine;
 
+import camnet.model.Agent;
+import camnet.model.AgentManifest;
 import camnet.model.Camera;
 import camnet.model.CameraManifest;
 import camnet.model.MediaServiceEndpoint;
@@ -139,7 +141,8 @@ public class AgentEngine {
 	public void init() {
 		loadTrackerServiceEndpoints();
 		loadMediaServiceEndpoints();
-		registerWithConfigurationService();
+
+		registerWithTrackerService();
 
 		createImagePublisher();
 
@@ -181,9 +184,7 @@ public class AgentEngine {
 		logger.trace("loaded " + count + " media service endpoints");
 	}
 
-	private void registerWithConfigurationService() {
-		logger.trace("registering with configuration service");
-
+	private String getHostName() {
 		// resolve hostname to be used in callbacks
 		String hostName = null;
 		try {
@@ -193,16 +194,36 @@ public class AgentEngine {
 			hostName = "localhost";
 		}
 
+		return hostName;
+	}
+
+	private void registerWithTrackerService() {
+		logger.trace("registering with tracker service");
+
+		String hostName = getHostName();
+
 		String serviceEndpointUrl = "http://" + hostName + ":" + localListenPort + localContextPath;
 
-		AgentServiceEndpoint endpoint = new AgentServiceEndpoint();
-		endpoint.setUrl(serviceEndpointUrl);
-		endpoint.setUserName("");
-		endpoint.setPassWord("");
+		AgentServiceEndpoint agentEndpoint = new AgentServiceEndpoint();
+		agentEndpoint.setUrl(serviceEndpointUrl);
+		agentEndpoint.setUserName("");
+		agentEndpoint.setPassWord("");
 
-		String url = configurationServiceUrl + "/agent/endpoint/add";
-		AgentServiceEndpoint result =
-				configService.postForObject(url, endpoint, AgentServiceEndpoint.class, new HashMap<String, String>());
+		Agent agent = new Agent();
+		agent.setServiceEndpoint(agentEndpoint);
+		agent.setId(createAgentId());
+
+		String trackerServiceUrl = trackerServiceEndpoints.get(0).getUrl();
+		String url = trackerServiceUrl + "/manifest/agents/add";
+
+		logger.trace("registering agent with tracker service located at: " + url);
+
+		Agent result =
+				trackerService.postForObject(url, agent, Agent.class, new HashMap<String, String>());
+	}
+
+	private String createAgentId() {
+		return getHostName() + "-" + System.currentTimeMillis();
 	}
 
 	private void createImagePublisher() {

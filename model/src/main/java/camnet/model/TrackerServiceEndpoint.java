@@ -39,11 +39,11 @@ public class TrackerServiceEndpoint {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this).
-        append("url", url).
-        append("userName", userName).
-        append("passWord", passWord).
-        toString();
+    return new ToStringBuilder(this)
+        .append("url", url)
+        .append("userName", userName)
+        .append("passWord", passWord)
+        .toString();
   }
 
 

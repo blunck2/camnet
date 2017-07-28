@@ -24,19 +24,23 @@ public class CameraManifestController {
   @Autowired
   private TrackerEngine engine;
 
+  private CameraManifest manifest;
+
   private Logger logger = LoggerFactory.getLogger(CameraManifestController.class);
+
+  @PostConstruct
+  private void setUp() {
+    manifest = engine.getCameraManifest();
+  }
 
   @RequestMapping("/cameras")
   public List<Camera> getAllCameras() {
-    CameraManifest manifest = engine.getCameraManifest();
     logger.info("camera size: " + manifest.getAllCameras().size());
     return manifest.getAllCameras();
   }
 
   @RequestMapping("/cameras/environment/{environment}")
   public List<Camera> getCamerasByEnvironment(@PathVariable("environment") String environment) {
-    CameraManifest manifest = engine.getCameraManifest();
-
     List<Camera> response = manifest.getCamerasByEnvironment(environment);
     return response;
   }
@@ -45,7 +49,6 @@ public class CameraManifestController {
   @PostMapping("/cameras/environment/{environment}/camera/{cameraId}/posted")
   public Camera setCameraPostTime(@PathVariable("environment") String environment,
                                   @PathVariable("cameraId") String cameraId) {
-    CameraManifest manifest = engine.getCameraManifest();
     Camera camera = manifest.getCameraById(environment, cameraId);
     long currentTimeMillis = System.currentTimeMillis();
     logger.trace("setting lastUpdateEpoch for camera '" + camera.getDisplayName() + "' to: " + currentTimeMillis);
@@ -57,7 +60,6 @@ public class CameraManifestController {
   @RequestMapping("/cameras/environment/{environment}/camera/{cameraId}")
   public Camera getCameraById(@PathVariable("environment") String environment,
                               @PathVariable("cameraId") String cameraId) {
-    CameraManifest manifest = engine.getCameraManifest();
     return manifest.getCameraById(environment, cameraId);
   }
 
@@ -65,7 +67,6 @@ public class CameraManifestController {
   public Camera setCameraBySleepTimeInSeconds(@PathVariable("environment") String environment,
                                               @PathVariable("cameraId") String cameraId,
                                               @PathVariable("sleepTimeInSeconds") Integer sleepTimeInSeconds) {
-    CameraManifest manifest = engine.getCameraManifest();
     Camera camera = manifest.getCameraById(environment, cameraId);
     int oldSleepTimeInSeconds = camera.getSleepTimeInSeconds();
     if (oldSleepTimeInSeconds != sleepTimeInSeconds) {
@@ -81,15 +82,12 @@ public class CameraManifestController {
   public Camera setCameraById(@PathVariable("environment") String environment,
                               @PathVariable("cameraId") String cameraId,
                               @RequestBody Camera camera) {
-    CameraManifest manifest = engine.getCameraManifest();
     manifest.addCamera(camera);
     return manifest.getCameraById(camera.getEnvironment(), camera.getId());
   }
 
   @PostMapping("/cameras")
   public void setAllCameras(@RequestBody List<Camera> cameras) {
-    CameraManifest manifest = engine.getCameraManifest();
-
     for (Camera camera : cameras) {
       String environment = camera.getEnvironment();
       String cameraId = camera.getId();

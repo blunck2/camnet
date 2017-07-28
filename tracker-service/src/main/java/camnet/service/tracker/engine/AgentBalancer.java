@@ -1,6 +1,8 @@
 package camnet.service.tracker.engine;
 
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Value;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,13 +17,16 @@ import java.util.List;
 import static java.util.concurrent.TimeUnit.*;
 
 
+@Component
 public class AgentBalancer implements Runnable {
-  private CameraManifest manifest;
+  private CameraManifest cameraManifest;
 
   private RestTemplate configService;
 
+  @Value("${AgentBalancer.CycleTimeInSeconds}")
   private int cycleTimeInSeconds;
 
+  @Value("${AgentBalancer.CycleMissCountBeforeReassignment}")
   private int cycleMissCountBeforeReassignment;
 
   private ScheduledExecutorService scheduler;
@@ -35,12 +40,12 @@ public class AgentBalancer implements Runnable {
     scheduler = Executors.newScheduledThreadPool(1);
   }
 
-  public CameraManifest getManifest() {
-    return manifest;
+  public CameraManifest getCameraManifest() {
+    return cameraManifest;
   }
 
-  public void setManifest(CameraManifest manifest) {
-    this.manifest = manifest;
+  public void setCameraManifest(CameraManifest cameraManifest) {
+    this.cameraManifest = cameraManifest;
   }
 
   public int getCycleTimeInSeconds() {
@@ -66,8 +71,13 @@ public class AgentBalancer implements Runnable {
 
 
   public void run() {
-    List<Camera> allCameras = manifest.getAllCameras();
+    List<Camera> allCameras = cameraManifest.getAllCameras();
     for (Camera camera : allCameras) {
+      if (camera.getAgent() == null) {
+        task(camera);
+        continue;
+      }
+
       int sleepTimeInMillis = camera.getSleepTimeInSeconds() * 1000;
       long lastUpdateMillis = camera.getLastUpdateEpoch();
       long nowMillis = System.currentTimeMillis();
