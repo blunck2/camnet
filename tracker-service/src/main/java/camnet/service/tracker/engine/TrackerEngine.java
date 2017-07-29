@@ -22,6 +22,7 @@ import camnet.model.TrackerServiceEndpoint;
 @Component
 public class TrackerEngine {
   private CameraManifest cameraManifest;
+
   private AgentManifest agentManifest;
 
   @Value("${ConfigurationRestEndpoint}")
@@ -42,7 +43,7 @@ public class TrackerEngine {
   private RestTemplate configService;
 
   @Autowired
-  private AgentBalancer balancer;
+  private AgentBalancerEngine balancer;
 
   private Logger logger = LoggerFactory.getLogger(TrackerEngine.class);
 
@@ -88,7 +89,6 @@ public class TrackerEngine {
 
   public AgentManifest getAgentManifest() { return agentManifest; }
 
-
   private void registerWithConfigurationService() {
     logger.trace("registering with configuration service");
 
@@ -115,6 +115,7 @@ public class TrackerEngine {
 
   private void startAgentBalancer() {
     balancer.setCameraManifest(cameraManifest);
+    balancer.setAgentManifest(agentManifest);
 
     balancer.start();
   }

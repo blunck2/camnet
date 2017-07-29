@@ -13,6 +13,7 @@ import camnet.model.AgentManifest;
 import camnet.model.Agent;
 
 import camnet.service.tracker.engine.TrackerEngine;
+import camnet.service.tracker.engine.AgentBalancerEngine;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -22,7 +23,13 @@ import java.util.List;
 @RequestMapping("/manifest")
 public class AgentManifestController {
   @Autowired
-  private TrackerEngine engine;
+  private TrackerEngine trackerEngine;
+
+  @Autowired
+  private AgentBalancerEngine agentBalancerEngine;
+
+  @Autowired
+  private AgentBalancerEngine balancer;
 
   private AgentManifest manifest;
 
@@ -30,12 +37,12 @@ public class AgentManifestController {
 
   @PostConstruct
   private void setUp() {
-    manifest = engine.getAgentManifest();
+    manifest = trackerEngine.getAgentManifest();
   }
 
   @RequestMapping("/agents")
   public List<Agent> getAllAgents() {
-    AgentManifest manifest = engine.getAgentManifest();
+    AgentManifest manifest = trackerEngine.getAgentManifest();
     logger.info("agent size: " + manifest.getAllAgents().size());
     return manifest.getAllAgents();
   }

@@ -1,13 +1,14 @@
 package camnet.service.tracker.engine;
 
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Value;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static java.util.concurrent.TimeUnit.*;
 
+import camnet.model.AgentManifest;
+import camnet.model.Agent;
 import camnet.model.CameraManifest;
 import camnet.model.Camera;
 
@@ -18,10 +19,11 @@ import static java.util.concurrent.TimeUnit.*;
 
 
 @Component
-public class AgentBalancer implements Runnable {
+public class AgentBalancerEngine implements Runnable {
+  private AgentManifest agentManifest;
+
   private CameraManifest cameraManifest;
 
-  private RestTemplate configService;
 
   @Value("${AgentBalancer.CycleTimeInSeconds}")
   private int cycleTimeInSeconds;
@@ -29,23 +31,28 @@ public class AgentBalancer implements Runnable {
   @Value("${AgentBalancer.CycleMissCountBeforeReassignment}")
   private int cycleMissCountBeforeReassignment;
 
+
+
   private ScheduledExecutorService scheduler;
 
-  private Logger logger = LoggerFactory.getLogger(AgentBalancer.class);
+  private Logger logger = LoggerFactory.getLogger(AgentBalancerEngine.class);
 
 
 
-  public AgentBalancer() {
-    configService = new RestTemplate();
+  public AgentBalancerEngine() {
     scheduler = Executors.newScheduledThreadPool(1);
   }
 
-  public CameraManifest getCameraManifest() {
-    return cameraManifest;
+  public AgentManifest getAgentManifest() {
+    return agentManifest;
   }
 
-  public void setCameraManifest(CameraManifest cameraManifest) {
-    this.cameraManifest = cameraManifest;
+  public void setAgentManifest(AgentManifest manifest) {
+    this.agentManifest = manifest;
+  }
+
+  public void setCameraManifest(CameraManifest manifest) {
+    this.cameraManifest = manifest;
   }
 
   public int getCycleTimeInSeconds() {
@@ -69,8 +76,17 @@ public class AgentBalancer implements Runnable {
     scheduler.scheduleAtFixedRate(this, 0, cycleTimeInSeconds, SECONDS);
   }
 
+  private AgentManifest retrieveAgentManifest() {
+    // TODO: call localhost tracker to retrieve the AgentManifest and return
+    return null;
+  }
+
 
   public void run() {
+    AgentManifest agentManifest = retrieveAgentManifest();
+
+    // TODO: loop over all cameras, identify ones that are latent, look over agents and assign cameras
+
     List<Camera> allCameras = cameraManifest.getAllCameras();
     for (Camera camera : allCameras) {
       if (camera.getAgent() == null) {
