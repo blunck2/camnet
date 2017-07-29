@@ -88,4 +88,13 @@ public class AgentManifestController {
 
     logger.info("agent manifest size: " + manifest.getAllAgents().size());
   }
+
+  @PostMapping("/agents/environment/{environment}/agent/{agentiId}/heartbeat")
+  public Agent sendHeartBeat(@PathVariable("environment") String environment,
+                             @PathVariable("agentId") String agentId) {
+    Agent agent = manifest.getAgentById(environment, agentId);
+    agent.heartBeat();
+
+    return agent;
+  }
 }

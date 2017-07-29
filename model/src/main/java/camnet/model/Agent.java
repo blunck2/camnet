@@ -8,6 +8,8 @@ public class Agent {
   private String id;
   private String environment;
   private AgentServiceEndpoint serviceEndpoint;
+  private long lastHeartBeatEpoch;
+
 
   public String getId() {
     return id;
@@ -33,6 +35,18 @@ public class Agent {
     this.serviceEndpoint = serviceEndpoint;
   }
 
+  public long getLastHeartBeatEpoch() {
+    return lastHeartBeatEpoch;
+  }
+
+  public void setLastHeartBeatEpoch(long lastHeartBeatEpoch) {
+    this.lastHeartBeatEpoch = lastHeartBeatEpoch;
+  }
+
+  public void heartBeat() {
+    this.lastHeartBeatEpoch = System.currentTimeMillis();
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (obj == null) {
@@ -52,6 +66,7 @@ public class Agent {
         .append(id, rhs.id)
         .append(environment, rhs.environment)
         .append(serviceEndpoint, rhs.serviceEndpoint)
+        .append(lastHeartBeatEpoch, rhs.lastHeartBeatEpoch)
         .isEquals();
 
     return isEquals;
@@ -63,6 +78,7 @@ public class Agent {
         .append("id", id)
         .append("environment", environment)
         .append("serviceEndpoint", serviceEndpoint)
+        .append("lastHeartBeatEpoch", lastHeartBeatEpoch)
         .toString();
   }
 }

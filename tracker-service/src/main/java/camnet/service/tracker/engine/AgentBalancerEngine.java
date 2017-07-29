@@ -77,15 +77,13 @@ public class AgentBalancerEngine implements Runnable {
   }
 
   private AgentManifest retrieveAgentManifest() {
-    // TODO: call localhost tracker to retrieve the AgentManifest and return
-    return null;
+    // TODO: call localhost tracker to get the agent manifest
+    return agentManifest;
   }
 
 
   public void run() {
     AgentManifest agentManifest = retrieveAgentManifest();
-
-    // TODO: loop over all cameras, identify ones that are latent, look over agents and assign cameras
 
     List<Camera> allCameras = cameraManifest.getAllCameras();
     for (Camera camera : allCameras) {
@@ -111,13 +109,24 @@ public class AgentBalancerEngine implements Runnable {
     logger.info("examining agents...");
   }
 
+  private Agent chooseAgent(String environment) {
+    // TODO:  want to choose the agent local to the environment but if the agent isn't recent then choose another
+
+    return null;
+  }
+
 
   private void deTask(Camera camera) {
     logger.info("detasking camera: " + camera);
+    camera.setAgent(null);
   }
 
   private void task(Camera camera) {
     logger.info("tasking camera: " + camera);
+
+    String environment = camera.getEnvironment();
+    Agent agent = chooseAgent(environment);
+
   }
 
 

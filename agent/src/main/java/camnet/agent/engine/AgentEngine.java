@@ -36,13 +36,13 @@ import org.springframework.web.client.RestTemplate;
 public class AgentEngine {
 	private CameraManifest cameraManifest;
 
-	@Value("${AgentEngine.configurationServiceUrl}")
+	@Value("${ConfigurationServiceUrl}")
 	private String configurationServiceUrl;
 
-	@Value("${AgentEngine.configurationServiceUserName}")
+	@Value("${ConfigurationServiceUserName}")
 	private String configurationServiceUserName;
 
-	@Value("${AgentEngine.configurationServicePassWord}")
+	@Value("${ConfigurationServicePassWord}")
 	private String configurationServicePassword;
 
 	private List<MediaServiceEndpoint> mediaServiceEndpoints;
