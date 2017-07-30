@@ -45,6 +45,9 @@ public class AgentEngine {
 	@Value("${ConfigurationServicePassWord}")
 	private String configurationServicePassword;
 
+	@Value("${AgentEngine.heartBeatSleepTimeInSeconds}")
+	private int heartBeatSleepTimeInSeconds;
+
 	private List<MediaServiceEndpoint> mediaServiceEndpoints;
 	private List<TrackerServiceEndpoint> trackerServiceEndpoints;
 
@@ -56,7 +59,8 @@ public class AgentEngine {
 
 	private List<Runnable> retrievers;
 
-	private ScheduledExecutorService scheduler;
+	private ScheduledExecutorService cameraScheduler;
+	private ScheduledExecutorService heartBeatScheduler;
 
 	private ImagePublisher publisher;
 
@@ -77,6 +81,7 @@ public class AgentEngine {
 
 		retrievers = new ArrayList<>();
 		cameraManifest = new CameraManifest();
+		heartBeatScheduler = Executors.newScheduledThreadPool(1);
 	}
 
 	public void setConfigurationServiceUrl(String restEndpoint) {
@@ -105,6 +110,14 @@ public class AgentEngine {
 
 	public void setEnvironments(List<String> environments) { this.environments = environments; }
 	public List<String> getEnvironments() { return environments; }
+
+	public int getHeartBeatSleepTimeInSeconds() {
+		return heartBeatSleepTimeInSeconds;
+	}
+
+	public void setHeartBeatSleepTimeInSeconds(int heartBeatSleepTimeInSeconds) {
+		this.heartBeatSleepTimeInSeconds = heartBeatSleepTimeInSeconds;
+	}
 
 	public CameraManifest getCameraManifest() {
 		return cameraManifest;
@@ -143,6 +156,8 @@ public class AgentEngine {
 		loadMediaServiceEndpoints();
 
 		registerWithTrackerService();
+
+		startHeartBeating();
 
 		createImagePublisher();
 
@@ -254,11 +269,18 @@ public class AgentEngine {
 
 		ThreadFactoryBuilder builder = new ThreadFactoryBuilder().setNameFormat("img-producer-%d");
 
-		scheduler = Executors.newScheduledThreadPool(cameraCount, builder.build());
+		cameraScheduler = Executors.newScheduledThreadPool(cameraCount, builder.build());
 		for (Camera camera : allCameras) {
 			logger.trace("starting camera: " + camera.getDisplayName());
 			startCamera(camera);
 		}
+	}
+
+	private void startHeartBeating() {
+		logger.info("sending heartbeats every " + heartBeatSleepTimeInSeconds + " seconds.");
+		Runnable heartBeater = new ScheduledHeartBeatSender(heartBeatScheduler, heartBeatSleepTimeInSeconds);
+		Thread t = new Thread(heartBeater);
+		t.start();
 	}
 
 	private int pickMediaServiceEndpoint() {
@@ -268,7 +290,7 @@ public class AgentEngine {
 
 
 	private void startCamera(Camera camera) {
-		Runnable retriever = new ScheduledImageRetriever(scheduler, camera, publisher);
+		Runnable retriever = new ScheduledImageRetriever(cameraScheduler, camera, publisher);
 		Thread t = new Thread(retriever);
 		t.start();
 
