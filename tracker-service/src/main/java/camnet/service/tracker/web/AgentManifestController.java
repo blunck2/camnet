@@ -37,7 +37,7 @@ public class AgentManifestController {
 
   @PostConstruct
   private void setUp() {
-    manifest = trackerEngine.getAgentManifest();
+    manifest = new AgentManifest();
   }
 
   @RequestMapping("/agents")
