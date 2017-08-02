@@ -3,10 +3,12 @@ package camnet.model;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.util.List;
+
 
 public class Agent {
   private String id;
-  private String environment;
+  private List<String> environments;
   private AgentServiceEndpoint serviceEndpoint;
   private long lastHeartBeatEpoch;
 
@@ -19,12 +21,12 @@ public class Agent {
     this.id = id;
   }
 
-  public String getEnvironment() {
-    return environment;
+  public List<String> getEnvironments() {
+    return environments;
   }
 
-  public void setEnvironment(String environment) {
-    this.environment = environment;
+  public void setEnvironments(List<String> environments) {
+    this.environments = environments;
   }
 
   public AgentServiceEndpoint getServiceEndpoint() {
@@ -64,7 +66,7 @@ public class Agent {
     boolean isEquals = new EqualsBuilder()
         .appendSuper(super.equals(obj))
         .append(id, rhs.id)
-        .append(environment, rhs.environment)
+        .append(environments, rhs.environments)
         .append(serviceEndpoint, rhs.serviceEndpoint)
         .append(lastHeartBeatEpoch, rhs.lastHeartBeatEpoch)
         .isEquals();
@@ -76,7 +78,7 @@ public class Agent {
   public String toString() {
     return new ToStringBuilder(this)
         .append("id", id)
-        .append("environment", environment)
+        .append("environments", environments)
         .append("serviceEndpoint", serviceEndpoint)
         .append("lastHeartBeatEpoch", lastHeartBeatEpoch)
         .toString();

@@ -56,38 +56,36 @@ public class AgentManifestController {
   @RequestMapping("/agents/environment/{environment}/agent/{agentId}")
   public Agent getAgentById(@PathVariable("environment") String environment,
                             @PathVariable("agentId") String agentId) {
-    return manifest.getAgentById(environment, agentId);
-  }
-
-  @PostMapping("/agents/environment/{environment}/agent/{agentId}")
-  public Agent setAgentById(@PathVariable("environment") String environment,
-                            @PathVariable("agentId") String agentId,
-                            @RequestBody Agent agent) {
-    manifest.addAgent(agent);
-    return manifest.getAgentById(agent.getEnvironment(), agent.getId());
-  }
-
-  @PostMapping("/agents/add")
-  public void addAgent(@RequestBody Agent agent) {
-    String environment = agent.getEnvironment();
-    String agentId = agent.getId();
-    setAgentById(environment, agentId, agent);
-
-    logger.info("loading agent: " + environment + "/" + agentId);
-    logger.info("agent manifest size: " + manifest.getAllAgents().size());
+    logger.info ("returning agent for environment '" + environment + "' and id '" + agentId + "'");
+    Agent agent = manifest.getAgentById(environment, agentId);
+    logger.debug("agent: " + agent.toString());
+    return agent;
   }
 
   @PostMapping("/agents")
   public void setAllAgents(@RequestBody List<Agent> agents) {
+    logger.info("setting all agents: " + agents);
+
     for (Agent agent : agents) {
-      String environment = agent.getEnvironment();
+      List<String> environments = agent.getEnvironments();
       String agentId = agent.getId();
-      setAgentById(environment, agentId, agent);
-      logger.info("loading agent: " + environment + "/" + agentId);
+      logger.info("adding agent in locations " + environments + ":" + agentId);
+
+      manifest.addAgent(agent);
     }
 
     logger.info("agent manifest size: " + manifest.getAllAgents().size());
   }
+
+  @PostMapping("/agents/add")
+  public void addAgent(@RequestBody Agent agent) {
+    logger.info("adding agent: " + agent);
+
+    manifest.addAgent(agent);
+
+    logger.info("agent manifest size: " + manifest.getAllAgents().size());
+  }
+
 
   @PostMapping("/agents/environment/{environment}/agent/{agentiId}/heartbeat")
   public Agent sendHeartBeat(@PathVariable("environment") String environment,

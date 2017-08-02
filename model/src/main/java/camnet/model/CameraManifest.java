@@ -64,7 +64,10 @@ public class CameraManifest {
 	}
 
 	public void addCamera(Camera camera) {
-		String environment = camera.getEnvironment();
+		addCamera(camera.getEnvironment(), camera);
+	}
+
+	public void addCamera(String environment, Camera camera) {
 		removeCameraById(camera.getId());
 
 		List<Camera> existingCameras = cameras.get(environment);

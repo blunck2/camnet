@@ -225,6 +225,7 @@ public class AgentEngine {
 		agentEndpoint.setPassWord("");
 
 		Agent agent = new Agent();
+		agent.setEnvironments(environments);
 		agent.setServiceEndpoint(agentEndpoint);
 		agent.setId(createAgentId());
 

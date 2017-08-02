@@ -83,7 +83,7 @@ public class CameraManifestController {
                               @PathVariable("cameraId") String cameraId,
                               @RequestBody Camera camera) {
     manifest.addCamera(camera);
-    return manifest.getCameraById(camera.getEnvironment(), camera.getId());
+    return manifest.getCameraById(environment, camera.getId());
   }
 
   @PostMapping("/cameras")

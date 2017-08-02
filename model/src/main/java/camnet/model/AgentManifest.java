@@ -32,7 +32,7 @@ public class AgentManifest {
   public Agent getAgentById(String environment, String id) {
     logger.trace("looking for agent environment: " + environment + "; id: " + id);
     for (Agent agent : getAgentsForEnvironment(environment)) {
-      logger.trace("got agentenvironment: " + agent.getEnvironment() + "; id: " + agent.getId());
+      logger.trace("got agentenvironment: " + environment + "; id: " + agent.getId());
       if (id.equals(agent.getId())) {
         return agent;
       }
@@ -42,8 +42,11 @@ public class AgentManifest {
   }
 
   public List<Agent> getAgentsForEnvironment(String environment) {
-    return agents.get(environment);
+    List<Agent> agentsForEnvironment = new ArrayList<>();
+    agentsForEnvironment.addAll(agents.get(environment));
+    return agentsForEnvironment;
   }
+
   public void setAgentsForEnvironment(String environment, List<Agent> agentList) { agents.put(environment, agentList); }
 
   public void removeAgentById(String id) {
@@ -64,22 +67,14 @@ public class AgentManifest {
   }
 
   public void addAgent(Agent agent) {
-    String environment = agent.getEnvironment();
-    removeAgentById(agent.getId());
-
-    List<Agent> existingAgents = agents.get(environment);
-    if (existingAgents == null) {
-      existingAgents = new ArrayList<>();
-      agents.put(environment, existingAgents);
-    }
-
-    for (Agent existing : existingAgents) {
-      if (existing.getId() == agent.getId()) {
-        throw new IllegalArgumentException("agent already exists");
+    for (String environment : agent.getEnvironments()) {
+      List<Agent> existingAgents = agents.get(environment);
+      if (existingAgents == null) {
+        existingAgents = new ArrayList<>();
       }
-    }
 
-    existingAgents.add(agent);
+      existingAgents.addAll(existingAgents);
+    }
   }
 
   public List<Agent> getAgentsByEnvironment(String environment) {

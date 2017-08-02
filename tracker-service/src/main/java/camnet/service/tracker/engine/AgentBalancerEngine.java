@@ -2,6 +2,8 @@ package camnet.service.tracker.engine;
 
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +17,10 @@ import camnet.model.Camera;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Executors;
 import java.util.List;
+import java.util.ArrayList;
 import static java.util.concurrent.TimeUnit.*;
+
+import javax.annotation.PostConstruct;
 
 
 @Component
@@ -28,10 +33,14 @@ public class AgentBalancerEngine implements Runnable {
   @Value("${AgentBalancer.CycleTimeInSeconds}")
   private int cycleTimeInSeconds;
 
-  @Value("${AgentBalancer.CycleMissCountBeforeReassignment}")
-  private int cycleMissCountBeforeReassignment;
+  @Value("${AgentBalancer.CameraCycleMissCountBeforeReassignment}")
+  private int cameraCycleMissCountBeforeReassignment;
 
+  @Value("${AgentBalancer.AgentDisconnectedDelayTimeInSeconds}")
+  private int agentDisconnectedDelayTimeInSeconds;
 
+  @Autowired
+  private TrackerEngine trackerEngine;
 
   private ScheduledExecutorService scheduler;
 
@@ -63,14 +72,31 @@ public class AgentBalancerEngine implements Runnable {
     this.cycleTimeInSeconds = cycleTimeInSeconds;
   }
 
-  public int getCycleMissCountBeforeReassignment() {
-    return cycleMissCountBeforeReassignment;
+  public int getCameraCycleMissCountBeforeReassignment() {
+    return cameraCycleMissCountBeforeReassignment;
   }
 
-  public void setCycleMissCountBeforeReassignment(int cycleMissCountBeforeReassignment) {
-    this.cycleMissCountBeforeReassignment = cycleMissCountBeforeReassignment;
+  public void setCameraCycleMissCountBeforeReassignment(int cameraCycleMissCountBeforeReassignment) {
+    this.cameraCycleMissCountBeforeReassignment = cameraCycleMissCountBeforeReassignment;
   }
 
+  public int getAgentDisconnectedDelayTimeInSeconds() {
+    return agentDisconnectedDelayTimeInSeconds;
+  }
+
+  public void setAgentDisconnectedDelayTimeInSeconds(int agentDisconnectedDelayTimeInSeconds) {
+    this.agentDisconnectedDelayTimeInSeconds = agentDisconnectedDelayTimeInSeconds;
+  }
+
+  public TrackerEngine getTrackerEngine() {
+    return trackerEngine;
+  }
+
+  public void setTrackerEngine(TrackerEngine trackerEngine) {
+    this.trackerEngine = trackerEngine;
+  }
+
+  @PostConstruct
   public void start() {
     logger.info("scheduling at fixed rate: " + cycleTimeInSeconds);
     scheduler.scheduleAtFixedRate(this, 0, cycleTimeInSeconds, SECONDS);
@@ -83,7 +109,66 @@ public class AgentBalancerEngine implements Runnable {
 
 
   public void run() {
+    try {
+      reassignDisconnectedAgentCameras();
+    } catch (Throwable t) {
+      logger.error("unexpected error occurred rebalancing cameras", t);
+    }
+  }
+
+  private void reassignDisconnectedAgentCameras() {
+    logger.trace("examining manifest: agents");
+
     AgentManifest agentManifest = retrieveAgentManifest();
+    List<Agent> allAgents = agentManifest.getAllAgents();
+
+    logger.debug("examining agents: " + allAgents.size() + " to examine.");
+
+    for (Agent agent : allAgents) {
+      int heartBeatSleepTimeInMillis = 30;
+      long lastUpdateMillis = agent.getLastHeartBeatEpoch();
+      long nowMillis = System.currentTimeMillis();
+
+      long delayMillis = nowMillis - lastUpdateMillis;
+
+      long projectedMillisAfterTimeout = lastUpdateMillis + (agentDisconnectedDelayTimeInSeconds * 1000);
+
+      if (nowMillis > projectedMillisAfterTimeout) {
+        deTaskCamerasForAgent(agent);
+        taskCamerasForAgent(agent);
+      }
+
+    }
+  }
+
+  private void deTaskCamerasForAgent(Agent agent) {
+    logger.info("detasking cameras for agent: " + agent);
+
+    List<Camera> allCameras = new ArrayList<>();
+
+    for (Camera camera : cameraManifest.getAllCameras()) {
+      logger.info("detasking camera: " + camera);
+    }
+  }
+
+
+  private Agent taskCamerasForAgent(Agent agent) {
+  logger.info("tasking cameras for agent: " + agent);
+
+    for (String environment : agent.getEnvironments()) {
+      List<Camera> cameras = cameraManifest.getCamerasForEnvironment(environment);
+
+      for (Camera camera : cameraManifest.getAllCameras()) {
+        logger.info("tasking camera: " + camera);
+      }
+    }
+
+    return agent;
+  }
+
+
+  private void reassignLatentCameras() {
+    logger.info("examining manifest: cameras");
 
     List<Camera> allCameras = cameraManifest.getAllCameras();
     for (Camera camera : allCameras) {
@@ -98,15 +183,13 @@ public class AgentBalancerEngine implements Runnable {
 
       long delayMillis = nowMillis - lastUpdateMillis;
 
-      long projectedMillisAfterTimeout = lastUpdateMillis + (cycleMissCountBeforeReassignment * cycleTimeInSeconds * 1000);
+      long projectedMillisAfterTimeout = lastUpdateMillis + (cameraCycleMissCountBeforeReassignment * cycleTimeInSeconds * 1000);
 
       if (nowMillis > projectedMillisAfterTimeout) {
         deTask(camera);
         task(camera);
       }
-
     }
-    logger.info("examining agents...");
   }
 
   private Agent chooseAgent(String environment) {
