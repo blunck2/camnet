@@ -99,6 +99,22 @@ public class AgentManifest {
     return allAgents;
   }
 
+  public List<Agent> getActiveAgents(int recencyInSeconds) {
+    List <Agent> activeAgents = new ArrayList<>();
+
+    for (Agent agent : getAllAgents()) {
+      long agentLastCheckInEpoch = agent.getLastHeartBeatEpoch();
+      long nowEpoch = System.currentTimeMillis();
+
+      long oldAgeTolleranceEpoch = nowEpoch - recencyInSeconds * 1000;
+      if (agentLastCheckInEpoch > oldAgeTolleranceEpoch) {
+        activeAgents.add(agent);
+      }
+    }
+
+    return activeAgents;
+  }
+
   @Override
   public String toString() {
     return new ToStringBuilder(this)

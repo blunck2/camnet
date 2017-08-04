@@ -117,15 +117,17 @@ public class AgentBalancerEngine implements Runnable {
 
   public void run() {
     try {
-      reassignDisconnectedAgentCameras();
+      reassignCamerasDueToDisconnectedAgent();
+      reassignDisconnectedCameras();
     } catch (Throwable t) {
       logger.error("unexpected error occurred rebalancing cameras", t);
     }
   }
 
-  private void reassignDisconnectedAgentCameras() {
+  private void reassignCamerasDueToDisconnectedAgent() {
     logger.trace("examining manifest: agents");
-    List<Agent> allAgents = agentManifest.getAllAgents();
+    // FIXME: change 60 to be some variable that indicates how long we should wait for an agent to time out before we reassign it's cameras
+    List<Agent> allAgents = agentManifest.getActiveAgents(60);
 
     for (Agent agent : allAgents) {
       int heartBeatSleepTimeInMillis = 30;
@@ -137,12 +139,37 @@ public class AgentBalancerEngine implements Runnable {
       long projectedMillisAfterTimeout = lastUpdateMillis + (agentDisconnectedDelayTimeInSeconds * 1000);
 
       if (nowMillis > projectedMillisAfterTimeout) {
-        deTaskCamerasForAgent(agent);
-        taskCamerasForAgent(agent);
+        reassignCamerasDueToDisconnectedAgent(agent);
       }
 
     }
   }
+
+  private void reassignCamerasDueToDisconnectedAgent(Agent agent) {
+    deTaskCamerasForAgent(agent);
+    taskCamerasForAgent(agent);
+  }
+
+
+  private void reassignDisconnectedCameras() {
+    logger.trace("examining manifest: cameras");
+
+    List<Camera> allCameras = cameraManifest.getAllCameras();
+    for (Camera camera : allCameras) {
+      long lastUpdateMillis = camera.getLastUpdateEpoch();
+      long sleepTimeMillis = camera.getSleepTimeInSeconds() * 1000;
+      long now = System.currentTimeMillis();
+
+      if (now > (lastUpdateMillis + sleepTimeMillis)) {
+        reassignCameraDueToTimeOutFromLocalAgent(camera);
+      }
+    }
+  }
+
+  private void reassignCameraDueToTimeOutFromLocalAgent(Camera camera) {
+    logger.info("reassigning camera due to latency: " + camera);
+  }
+
 
   private void deTaskCamerasForAgent(Agent agent) {
     logger.info("detasking cameras for agent: " + agent);
