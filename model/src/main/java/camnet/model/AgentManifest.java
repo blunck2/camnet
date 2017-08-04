@@ -115,6 +115,30 @@ public class AgentManifest {
     return activeAgents;
   }
 
+
+  public Agent findAgent(String environment) {
+    List<Agent> possibleAgents = agents.get(environment);
+    if (possibleAgents == null) {
+      possibleAgents = new ArrayList<Agent>();
+    }
+
+    if (possibleAgents.size() == 0) {
+      possibleAgents.addAll(getActiveAgents(300));
+    }
+
+    for (Agent agent : possibleAgents) {
+      long agentLastCheckInEpoch = agent.getLastHeartBeatEpoch();
+      long nowEpoch = System.currentTimeMillis();
+      long oldAgeTolleranceEpoch = nowEpoch - (10 * 1000);
+
+      if (agentLastCheckInEpoch > oldAgeTolleranceEpoch) {
+        return agent;
+      }
+    }
+
+    return null;
+  }
+
   @Override
   public String toString() {
     return new ToStringBuilder(this)

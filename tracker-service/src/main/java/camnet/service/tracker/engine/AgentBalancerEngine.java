@@ -223,9 +223,7 @@ public class AgentBalancerEngine implements Runnable {
   }
 
   private Agent chooseAgent(String environment) {
-    // TODO:  want to choose the agent local to the environment but if the agent isn't recent then choose another
-
-    return null;
+    return agentManifest.findAgent(environment);
   }
 
 
