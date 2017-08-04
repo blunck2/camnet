@@ -8,16 +8,15 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 
 public class CameraManifest {
 	private Map<String, List<Camera>> cameras;
 
-	private Logger logger = LogManager.getLogger();
+	private Logger logger = LoggerFactory.getLogger(CameraManifest.class);
 
 	public CameraManifest() { cameras = new HashMap<>(); }
 

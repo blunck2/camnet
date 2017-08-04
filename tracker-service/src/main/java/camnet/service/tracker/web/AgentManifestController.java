@@ -37,7 +37,7 @@ public class AgentManifestController {
 
   @PostConstruct
   private void setUp() {
-    manifest = new AgentManifest();
+    manifest = trackerEngine.getAgentManifest();
   }
 
   @RequestMapping("/agents")
@@ -80,6 +80,8 @@ public class AgentManifestController {
   @PostMapping("/agents/add")
   public void addAgent(@RequestBody Agent agent) {
     logger.info("adding agent: " + agent);
+
+    logger.info("--------- adding agent to agent manifest with HC: " + manifest.hashCode());
 
     manifest.addAgent(agent);
 

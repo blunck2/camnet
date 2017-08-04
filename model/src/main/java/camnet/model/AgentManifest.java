@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -17,7 +17,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 public class AgentManifest {
   private Map<String, List<Agent>> agents;
 
-  private Logger logger = LogManager.getLogger();
+  private Logger logger = LoggerFactory.getLogger(AgentManifest.class);
 
   public AgentManifest() { agents = new HashMap<>(); }
 
@@ -69,11 +69,18 @@ public class AgentManifest {
   public void addAgent(Agent agent) {
     for (String environment : agent.getEnvironments()) {
       List<Agent> existingAgents = agents.get(environment);
+      boolean environmentUnknown = false;
+
       if (existingAgents == null) {
         existingAgents = new ArrayList<>();
+        environmentUnknown = true;
       }
 
-      existingAgents.addAll(existingAgents);
+      existingAgents.add(agent);
+
+      if (environmentUnknown) {
+        agents.put(environment, existingAgents);
+      }
     }
   }
 

@@ -29,6 +29,9 @@ public class AgentBalancerEngine implements Runnable {
 
   private CameraManifest cameraManifest;
 
+  @Autowired
+  private TrackerEngine trackerEngine;
+
 
   @Value("${AgentBalancer.CycleTimeInSeconds}")
   private int cycleTimeInSeconds;
@@ -39,12 +42,16 @@ public class AgentBalancerEngine implements Runnable {
   @Value("${AgentBalancer.AgentDisconnectedDelayTimeInSeconds}")
   private int agentDisconnectedDelayTimeInSeconds;
 
-  @Autowired
-  private TrackerEngine trackerEngine;
-
   private ScheduledExecutorService scheduler;
 
   private Logger logger = LoggerFactory.getLogger(AgentBalancerEngine.class);
+
+  @PostConstruct
+  private void setUp() {
+    agentManifest = trackerEngine.getAgentManifest();
+    logger.info("------ got agent manifest with HC: " + agentManifest.hashCode());
+    cameraManifest = trackerEngine.getCameraManifest();
+  }
 
 
 
@@ -99,7 +106,7 @@ public class AgentBalancerEngine implements Runnable {
   @PostConstruct
   public void start() {
     logger.info("scheduling at fixed rate: " + cycleTimeInSeconds);
-    scheduler.scheduleAtFixedRate(this, 0, cycleTimeInSeconds, SECONDS);
+    scheduler.scheduleAtFixedRate(this, cycleTimeInSeconds, cycleTimeInSeconds, SECONDS);
   }
 
   private AgentManifest retrieveAgentManifest() {
@@ -118,11 +125,7 @@ public class AgentBalancerEngine implements Runnable {
 
   private void reassignDisconnectedAgentCameras() {
     logger.trace("examining manifest: agents");
-
-    AgentManifest agentManifest = retrieveAgentManifest();
     List<Agent> allAgents = agentManifest.getAllAgents();
-
-    logger.debug("examining agents: " + allAgents.size() + " to examine.");
 
     for (Agent agent : allAgents) {
       int heartBeatSleepTimeInMillis = 30;
