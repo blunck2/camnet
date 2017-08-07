@@ -38,6 +38,7 @@ public class AgentManifestController {
   @PostConstruct
   private void setUp() {
     manifest = trackerEngine.getAgentManifest();
+    logger.info("manifest HC: " + manifest.hashCode());
   }
 
   @RequestMapping("/agents")
@@ -89,9 +90,11 @@ public class AgentManifestController {
   }
 
 
-  @PostMapping("/agents/environment/{environment}/agent/{agentiId}/heartbeat")
-  public Agent sendHeartBeat(@PathVariable("environment") String environment,
-                             @PathVariable("agentId") String agentId) {
+  @PostMapping("/agents/environment/{environment}/agent/{agentId}/heartbeat")
+  public Agent receiveHeartBeat(@PathVariable("environment") String environment,
+                                @PathVariable("agentId") String agentId) {
+    logger.info("heartbeat received!");
+    logger.info("heartbeat received.  updating agent manifest: " + manifest.hashCode());
     Agent agent = manifest.getAgentById(environment, agentId);
     agent.heartBeat();
 

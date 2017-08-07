@@ -57,11 +57,11 @@ public class Camera {
 		this.lastUpdateEpoch = lastUpdateEpoch;
 	}
 
-	public AgentServiceEndpoint getAgent() {
+	public AgentServiceEndpoint getAgentServiceEndpoint() {
 		return agent;
 	}
 
-	public void setAgent(AgentServiceEndpoint agent) {
+	public void setAgentServiceEndpoint(AgentServiceEndpoint agent) {
 		this.agent = agent;
 	}
 

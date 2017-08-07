@@ -88,7 +88,7 @@ public class ImagePublisher {
 			template.exchange(url, 
 							  HttpMethod.POST, 
 							  requestEntity,
-                    		  String.class);
+					      String.class);
 		logger.trace(camera.getDisplayName() + " back from POST");
 
 		if (result.getStatusCode() != HttpStatus.OK) {

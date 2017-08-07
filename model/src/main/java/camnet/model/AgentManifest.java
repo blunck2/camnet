@@ -100,19 +100,31 @@ public class AgentManifest {
   }
 
   public List<Agent> getActiveAgents(int recencyInSeconds) {
-    List <Agent> activeAgents = new ArrayList<>();
+    List<Agent> allAgents = new ArrayList<>();
+    allAgents.addAll(getAllAgents());
+
+    List<Agent> inActiveAgents = getInActiveAgents(recencyInSeconds);
+    allAgents.removeAll(inActiveAgents);
+
+    return allAgents;
+  }
+
+  public List<Agent> getInActiveAgents(int recencyInSeconds) {
+    List <Agent> inactiveAgents = new ArrayList<>();
 
     for (Agent agent : getAllAgents()) {
       long agentLastCheckInEpoch = agent.getLastHeartBeatEpoch();
       long nowEpoch = System.currentTimeMillis();
 
-      long oldAgeTolleranceEpoch = nowEpoch - recencyInSeconds * 1000;
-      if (agentLastCheckInEpoch > oldAgeTolleranceEpoch) {
-        activeAgents.add(agent);
+      long oldAgeTolleranceEpoch = nowEpoch - (recencyInSeconds * 1000);
+      logger.info("oldAgeTolleranceEpoch: " + oldAgeTolleranceEpoch + "; agentLastCheckInEpoch: " + agentLastCheckInEpoch);
+
+      if (agentLastCheckInEpoch < oldAgeTolleranceEpoch) {
+        inactiveAgents.add(agent);
       }
     }
 
-    return activeAgents;
+    return inactiveAgents;
   }
 
 

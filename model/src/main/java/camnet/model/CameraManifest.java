@@ -45,6 +45,16 @@ public class CameraManifest {
 	}
 	public void setCamerasForEnvironment(String environment, List<Camera> cameraList) { cameras.put(environment, cameraList); }
 
+	public List<Camera> getCamerasForAgent(Agent agent) {
+		List<Camera> cameras = new ArrayList<>();
+
+		for (Camera camera : getAllCameras()) {
+
+		}
+
+		return cameras;
+	}
+
 	public void removeCameraById(String id) {
 		for (String environment : cameras.keySet()) {
 			List<Camera> camerasForEnvironment = cameras.get(environment);

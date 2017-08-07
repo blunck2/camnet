@@ -36,6 +36,8 @@ import org.springframework.web.client.RestTemplate;
 public class AgentEngine {
 	private CameraManifest cameraManifest;
 
+	private Agent localAgent;
+
 	@Value("${ConfigurationServiceUrl}")
 	private String configurationServiceUrl;
 
@@ -142,12 +144,17 @@ public class AgentEngine {
 		// trackerService.getInterceptors().add(new BasicAuthorizationInterceptor(trackerServiceUserName, trackerServicePassWord));
 
 		ResponseEntity<Camera[]> responseEntity = trackerService.getForEntity(url, Camera[].class);
-		List<Camera> cameras = new ArrayList<>();
-		for (Camera camera : responseEntity.getBody()) {
-			cameras.add(camera);
+		Camera[] cameras = responseEntity.getBody();
+		if ((cameras == null) || (cameras.length == 0)) {
+			return new ArrayList<>();
 		}
 
-		return cameras;
+		List<Camera> camerasToReturn = new ArrayList<>();
+		for (Camera camera : cameras) {
+			camerasToReturn.add(camera);
+		}
+
+		return camerasToReturn;
 	}
 
 	@PostConstruct
@@ -224,18 +231,17 @@ public class AgentEngine {
 		agentEndpoint.setUserName("");
 		agentEndpoint.setPassWord("");
 
-		Agent agent = new Agent();
-		agent.setEnvironments(environments);
-		agent.setServiceEndpoint(agentEndpoint);
-		agent.setId(createAgentId());
+		localAgent = new Agent();
+		localAgent.setEnvironments(environments);
+		localAgent.setServiceEndpoint(agentEndpoint);
+		localAgent.setId(createAgentId());
 
 		String trackerServiceUrl = trackerServiceEndpoints.get(0).getUrl();
 		String url = trackerServiceUrl + "/manifest/agents/add";
 
 		logger.trace("registering agent with tracker service located at: " + url);
 
-		Agent result =
-				trackerService.postForObject(url, agent, Agent.class, new HashMap<String, String>());
+		trackerService.postForObject(url, localAgent, Agent.class, new HashMap<String, String>());
 	}
 
 	private String createAgentId() {
@@ -279,13 +285,22 @@ public class AgentEngine {
 
 	private void startHeartBeating() {
 		logger.info("sending heartbeats every " + heartBeatSleepTimeInSeconds + " seconds.");
-		Runnable heartBeater = new ScheduledHeartBeatSender(heartBeatScheduler, heartBeatSleepTimeInSeconds);
+		logger.info("local agent: " + localAgent.toString());
+		int trackerServiceEndpointPos = pickTrackerServiceEndpoint();
+		TrackerServiceEndpoint trackerServiceEndpoint = trackerServiceEndpoints.get(trackerServiceEndpointPos);
+
+		Runnable heartBeater = new ScheduledHeartBeatSender(heartBeatScheduler, heartBeatSleepTimeInSeconds, trackerServiceEndpoint, "", "", environments, localAgent);
 		Thread t = new Thread(heartBeater);
 		t.start();
 	}
 
 	private int pickMediaServiceEndpoint() {
 		// TODO: pick a random media service
+		return 0;
+	}
+
+	private int pickTrackerServiceEndpoint() {
+		// TODO: pick a random tracker service
 		return 0;
 	}
 
