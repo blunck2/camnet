@@ -11,6 +11,7 @@ import static java.util.concurrent.TimeUnit.*;
 
 import camnet.model.AgentManifest;
 import camnet.model.Agent;
+import camnet.model.AgentServiceEndpoint;
 import camnet.model.CameraManifest;
 import camnet.model.Camera;
 import camnet.service.tracker.util.TaskingUtility;
@@ -127,26 +128,34 @@ public class AgentBalancerEngine implements Runnable {
   }
 
   private void reassignCamerasDueToDisconnectedAgent() {
-    logger.trace("examining manifest: agents");
-    logger.info("agent manifest: " + agentManifest.hashCode());
+    logger.info("looking for disconnected agents");
+    logger.trace("agent manifest: " + agentManifest.hashCode());
 
     // FIXME: change 60 to be some variable that indicates how long we should wait for an agent to time out before we reassign it's cameras
     List<Agent> inActiveAgents = agentManifest.getInActiveAgents(60);
 
+    logger.trace("disconnected agents: " + inActiveAgents.size());
+
     for (Agent agent : inActiveAgents) {
+      logger.info("reassigning cameras for agent: " + agent);
       reassignCamerasDueToDisconnectedAgent(agent);
     }
   }
 
 
   private void reassignCamerasDueToDisconnectedAgent(Agent disconnectedAgent) {
-    List<Camera> camerasToReassign = cameraManifest.getCamerasForAgent(disconnectedAgent);
+    AgentServiceEndpoint disconnectedEndpoint = disconnectedAgent.getServiceEndpoint();
+    if (disconnectedEndpoint == null) {
+      logger.error("the endpoint is null");
+    }
+
+    List<Camera> camerasToReassign = cameraManifest.getCamerasForAgentServiceEndpoint(disconnectedEndpoint);
+    logger.trace("cameras to reassign: " + camerasToReassign);
 
     for (Camera cameraToReassign : camerasToReassign) {
       Agent newAgent = chooseAgent(cameraToReassign.getEnvironment());
 
       if (newAgent == null) {
-        logger.error("agent is inactive: " + disconnectedAgent);
         logger.error("no other agents are available");
         return;
       }

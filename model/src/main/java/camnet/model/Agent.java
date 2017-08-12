@@ -12,7 +12,6 @@ public class Agent {
   private AgentServiceEndpoint serviceEndpoint;
   private long lastHeartBeatEpoch;
 
-
   public String getId() {
     return id;
   }
@@ -48,6 +47,7 @@ public class Agent {
   public void heartBeat() {
     this.lastHeartBeatEpoch = System.currentTimeMillis();
   }
+
 
   @Override
   public boolean equals(Object obj) {

@@ -129,16 +129,16 @@ public class AgentEngine {
 		this.cameraManifest = cameraManifest;
 	}
 
-	private List<Camera> getCamerasForEnvironment(String environment) {
+	private List<Camera> getCamerasToActivate(String environment) {
 		// TODO: implement failover to backup trackers
-		TrackerServiceEndpoint endpoint = trackerServiceEndpoints.get(0);
+		TrackerServiceEndpoint endpoint = pickTrackerServiceEndpoint();
 
 		String trackerServiceUrl = endpoint.getUrl();
 		String trackerServiceUserName = endpoint.getUserName();
 		String trackerServicePassWord = endpoint.getPassWord();
-		String url = trackerServiceUrl + "/manifest/cameras/environment/" + environment;
+		String url = trackerServiceUrl + "/manifest/cameras/environment/start/" + environment;
 
-		logger.info("retrieving camera manifests from: " + url);
+		logger.info("retrieving cameras to start from: " + url);
 
 		// TODO: implement basic auth
 		// trackerService.getInterceptors().add(new BasicAuthorizationInterceptor(trackerServiceUserName, trackerServicePassWord));
@@ -153,6 +153,8 @@ public class AgentEngine {
 		for (Camera camera : cameras) {
 			camerasToReturn.add(camera);
 		}
+
+		logger.trace("cameras to activate: " + camerasToReturn);
 
 		return camerasToReturn;
 	}
@@ -236,7 +238,8 @@ public class AgentEngine {
 		localAgent.setServiceEndpoint(agentEndpoint);
 		localAgent.setId(createAgentId());
 
-		String trackerServiceUrl = trackerServiceEndpoints.get(0).getUrl();
+		TrackerServiceEndpoint trackerServiceEndpoint = pickTrackerServiceEndpoint();
+		String trackerServiceUrl = trackerServiceEndpoint.getUrl();
 		String url = trackerServiceUrl + "/manifest/agents/add";
 
 		logger.trace("registering agent with tracker service located at: " + url);
@@ -249,9 +252,7 @@ public class AgentEngine {
 	}
 
 	private void createImagePublisher() {
-		int mediaServiceEndpointPos = pickMediaServiceEndpoint();
-
-		MediaServiceEndpoint mediaServiceEndpoint = mediaServiceEndpoints.get(mediaServiceEndpointPos);
+		MediaServiceEndpoint mediaServiceEndpoint = pickMediaServiceEndpoint();
 
 		String mediaServiceUrl = mediaServiceEndpoint.getUrl();
 		String mediaServiceUserName = mediaServiceEndpoint.getUserName();
@@ -266,10 +267,19 @@ public class AgentEngine {
 
 		for (String environment : environments) {
 			logger.info("getting cameras for environment: " + environment);
-			List<Camera> cameras = getCamerasForEnvironment(environment);
-			logger.info("retrieved " + cameras.size() + " cameras");
-			cameraManifest.setCamerasForEnvironment(environment, cameras);
-			allCameras.addAll(cameras);
+
+			List<Camera> camerasToActivate = getCamerasToActivate(environment);
+			logger.info("retrieved " + camerasToActivate.size() + " cameras to activate");
+
+			List<Camera> camerasForEnvironment = new ArrayList<>();
+			for (Camera cameraToActivate : camerasToActivate) {
+				Camera activatedCamera = activateCamera(cameraToActivate);
+				camerasForEnvironment.add(activatedCamera);
+				allCameras.add(activatedCamera);
+
+				// TODO: we can't override ALL of the cameras for the environment based on a few to reassign...
+				cameraManifest.setCamerasForEnvironment(environment, camerasForEnvironment);
+			}
 		}
 
 		int cameraCount = allCameras.size();
@@ -283,25 +293,37 @@ public class AgentEngine {
 		}
 	}
 
+	private Camera activateCamera(Camera cameraToActivate) {
+		// TODO:  call tracker service to activate the camera with this agent
+		return cameraToActivate;
+	}
+
 	private void startHeartBeating() {
 		logger.info("sending heartbeats every " + heartBeatSleepTimeInSeconds + " seconds.");
 		logger.info("local agent: " + localAgent.toString());
-		int trackerServiceEndpointPos = pickTrackerServiceEndpoint();
-		TrackerServiceEndpoint trackerServiceEndpoint = trackerServiceEndpoints.get(trackerServiceEndpointPos);
+		TrackerServiceEndpoint trackerServiceEndpoint = pickTrackerServiceEndpoint();
 
 		Runnable heartBeater = new ScheduledHeartBeatSender(heartBeatScheduler, heartBeatSleepTimeInSeconds, trackerServiceEndpoint, "", "", environments, localAgent);
 		Thread t = new Thread(heartBeater);
 		t.start();
 	}
 
-	private int pickMediaServiceEndpoint() {
-		// TODO: pick a random media service
-		return 0;
+	private int chooseRandom(int minimum, int maximum) {
+		return minimum;
 	}
 
-	private int pickTrackerServiceEndpoint() {
-		// TODO: pick a random tracker service
-		return 0;
+	private MediaServiceEndpoint pickMediaServiceEndpoint() {
+		int endpointCount = mediaServiceEndpoints.size();
+		int selectedEndpointPosition = chooseRandom(0, endpointCount);
+
+		return mediaServiceEndpoints.get(selectedEndpointPosition);
+	}
+
+	private TrackerServiceEndpoint pickTrackerServiceEndpoint() {
+		int endpointCount = trackerServiceEndpoints.size();
+		int selectedEndpointPosition = chooseRandom(0, endpointCount);
+
+		return trackerServiceEndpoints.get(selectedEndpointPosition);
 	}
 
 

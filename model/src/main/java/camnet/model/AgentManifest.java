@@ -32,7 +32,7 @@ public class AgentManifest {
   public Agent getAgentById(String environment, String id) {
     logger.trace("looking for agent environment: " + environment + "; id: " + id);
     for (Agent agent : getAgentsForEnvironment(environment)) {
-      logger.trace("got agentenvironment: " + environment + "; id: " + agent.getId());
+      logger.trace("got agent environment: " + environment + "; id: " + agent.getId());
       if (id.equals(agent.getId())) {
         return agent;
       }

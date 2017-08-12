@@ -55,6 +55,20 @@ public class CameraManifest {
 		return cameras;
 	}
 
+	public List<Camera> getCamerasForAgentServiceEndpoint(AgentServiceEndpoint agentServiceEndpoint) {
+		List<Camera> cameras = new ArrayList<>();
+
+		String agentServiceEndpointUrl = agentServiceEndpoint.getUrl();
+
+		for (Camera camera : getAllCameras()) {
+			if (camera.getAgentServiceEndpoint().getUrl().equals(agentServiceEndpointUrl)) {
+				cameras.add(camera);
+			}
+		}
+
+		return cameras;
+	}
+
 	public void removeCameraById(String id) {
 		for (String environment : cameras.keySet()) {
 			List<Camera> camerasForEnvironment = cameras.get(environment);
