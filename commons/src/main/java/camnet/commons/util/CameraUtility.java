@@ -28,7 +28,7 @@ public class CameraUtility {
     if (lastUpdateEpoch == 0) {
       return true;
     }
-    
+
 
     long now = System.currentTimeMillis();
 
