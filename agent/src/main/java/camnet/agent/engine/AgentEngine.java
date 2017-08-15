@@ -294,8 +294,10 @@ public class AgentEngine {
 	}
 
 	private Camera addCamera(Camera camera) {
-		cameraManifest.addCamera(camera);
-		startImageRetrieverForCamera(camera);
+		if (! cameraManifest.cameraExists(camera)) {
+			cameraManifest.addCamera(camera);
+			startImageRetrieverForCamera(camera);
+		}
 
 		return camera;
 	}

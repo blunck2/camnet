@@ -74,6 +74,16 @@ public class CameraManifest {
 		return cameras;
 	}
 
+	public boolean cameraExists(Camera camera) {
+		for (Camera existingCamera : getAllCameras()) {
+			if (existingCamera.getId().equals(camera.getId())) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public void removeCameraById(String id) {
 		for (String environment : cameras.keySet()) {
 			List<Camera> camerasForEnvironment = cameras.get(environment);
@@ -129,6 +139,8 @@ public class CameraManifest {
 	}
 
 	private boolean isLatent(Camera camera) {
+		logger.info("camera isLatent?: " + camera);
+
 		long cameraLastUpdateEpoch = camera.getLastUpdateEpoch();
 		if (cameraLastUpdateEpoch == 0) {
 			return true;
@@ -136,6 +148,8 @@ public class CameraManifest {
 
 		long nowEpoch = System.currentTimeMillis();
 		long futureEpoch = cameraLastUpdateEpoch + (camera.getSleepTimeInSeconds() * 1000);
+		logger.info("nowEpoch: " + nowEpoch);
+		logger.info("futureEpoch: " + futureEpoch);
 
 		return (nowEpoch > futureEpoch);
 	}
