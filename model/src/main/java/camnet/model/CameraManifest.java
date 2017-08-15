@@ -128,11 +128,23 @@ public class CameraManifest {
 		return allCameras;
 	}
 
+	private boolean isLatent(Camera camera) {
+		long cameraLastUpdateEpoch = camera.getLastUpdateEpoch();
+		if (cameraLastUpdateEpoch == 0) {
+			return true;
+		}
+
+		long nowEpoch = System.currentTimeMillis();
+		long futureEpoch = cameraLastUpdateEpoch + (camera.getSleepTimeInSeconds() * 1000);
+
+		return (nowEpoch > futureEpoch);
+	}
+
 	public List<Camera> getLatentCameras() {
 		List<Camera> latentCameras = new ArrayList<>();
 
 		for (Camera camera : getAllCameras()) {
-			if (camera.isLatent()) {
+			if (isLatent(camera)) {
 				latentCameras.add(camera);
 			}
 		}
