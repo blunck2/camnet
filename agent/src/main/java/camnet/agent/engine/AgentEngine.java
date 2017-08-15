@@ -19,8 +19,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
-
 import java.util.concurrent.*;
+import java.util.concurrent.ThreadLocalRandom;
+
 import java.lang.Runnable;
 
 import javax.annotation.PostConstruct;
@@ -55,6 +56,9 @@ public class AgentEngine {
 
 	@Value("#{'${AgentEngine.environments}'.split(',')}")
 	private List<String> environments;
+
+	@Value("${AgentEngine.maximumCameraCount}")
+	private int maximumCameraCount;
 
 	private RestTemplate configService;
 	private RestTemplate trackerService;
@@ -121,42 +125,20 @@ public class AgentEngine {
 		this.heartBeatSleepTimeInSeconds = heartBeatSleepTimeInSeconds;
 	}
 
+	public int getMaximumCameraCount() {
+		return maximumCameraCount;
+	}
+
+	public void setMaximumCameraCount(int maximumCameraCount) {
+		this.maximumCameraCount = maximumCameraCount;
+	}
+
 	public CameraManifest getCameraManifest() {
 		return cameraManifest;
 	}
 
 	public void setCameraManifest(CameraManifest cameraManifest) {
 		this.cameraManifest = cameraManifest;
-	}
-
-	private List<Camera> getCamerasToActivate(String environment) {
-		// TODO: implement failover to backup trackers
-		TrackerServiceEndpoint endpoint = pickTrackerServiceEndpoint();
-
-		String trackerServiceUrl = endpoint.getUrl();
-		String trackerServiceUserName = endpoint.getUserName();
-		String trackerServicePassWord = endpoint.getPassWord();
-		String url = trackerServiceUrl + "/manifest/cameras/environment/start/" + environment;
-
-		logger.info("retrieving cameras to start from: " + url);
-
-		// TODO: implement basic auth
-		// trackerService.getInterceptors().add(new BasicAuthorizationInterceptor(trackerServiceUserName, trackerServicePassWord));
-
-		ResponseEntity<Camera[]> responseEntity = trackerService.getForEntity(url, Camera[].class);
-		Camera[] cameras = responseEntity.getBody();
-		if ((cameras == null) || (cameras.length == 0)) {
-			return new ArrayList<>();
-		}
-
-		List<Camera> camerasToReturn = new ArrayList<>();
-		for (Camera camera : cameras) {
-			camerasToReturn.add(camera);
-		}
-
-		logger.trace("cameras to activate: " + camerasToReturn);
-
-		return camerasToReturn;
 	}
 
 	@PostConstruct
@@ -170,7 +152,7 @@ public class AgentEngine {
 
 		createImagePublisher();
 
-		startCameras();
+		createCameraScheduler();
 	}
 
 	private void loadTrackerServiceEndpoints() {
@@ -262,40 +244,11 @@ public class AgentEngine {
 	}
 
 
-	private void startCameras() {
-		List<Camera> allCameras = new ArrayList<>();
-
-		for (String environment : environments) {
-			logger.info("getting cameras for environment: " + environment);
-
-			List<Camera> camerasToActivate = getCamerasToActivate(environment);
-			logger.info("retrieved " + camerasToActivate.size() + " cameras to activate");
-
-			List<Camera> camerasForEnvironment = new ArrayList<>();
-			for (Camera cameraToActivate : camerasToActivate) {
-				Camera activatedCamera = activateCamera(cameraToActivate);
-				camerasForEnvironment.add(activatedCamera);
-				allCameras.add(activatedCamera);
-
-				// TODO: we can't override ALL of the cameras for the environment based on a few to reassign...
-				cameraManifest.setCamerasForEnvironment(environment, camerasForEnvironment);
-			}
-		}
-
-		int cameraCount = allCameras.size();
+	private void createCameraScheduler() {
+		int maximumCameraCount = 50;
 
 		ThreadFactoryBuilder builder = new ThreadFactoryBuilder().setNameFormat("img-producer-%d");
-
-		cameraScheduler = Executors.newScheduledThreadPool(cameraCount, builder.build());
-		for (Camera camera : allCameras) {
-			logger.trace("starting camera: " + camera.getDisplayName());
-			startCamera(camera);
-		}
-	}
-
-	private Camera activateCamera(Camera cameraToActivate) {
-		// TODO:  call tracker service to activate the camera with this agent
-		return cameraToActivate;
+		cameraScheduler = Executors.newScheduledThreadPool(maximumCameraCount, builder.build());
 	}
 
 	private void startHeartBeating() {
@@ -309,7 +262,12 @@ public class AgentEngine {
 	}
 
 	private int chooseRandom(int minimum, int maximum) {
-		return minimum;
+		if (minimum == maximum) {
+			return minimum;
+		}
+
+		int randomNumber = ThreadLocalRandom.current().nextInt(minimum, maximum);
+		return randomNumber;
 	}
 
 	private MediaServiceEndpoint pickMediaServiceEndpoint() {
@@ -327,12 +285,24 @@ public class AgentEngine {
 	}
 
 
-	private void startCamera(Camera camera) {
+	private void startImageRetrieverForCamera(Camera camera) {
 		Runnable retriever = new ScheduledImageRetriever(cameraScheduler, camera, publisher);
 		Thread t = new Thread(retriever);
 		t.start();
 
 		retrievers.add(retriever);
+	}
+
+	private Camera addCamera(Camera camera) {
+		cameraManifest.addCamera(camera);
+		startImageRetrieverForCamera(camera);
+
+		return camera;
+	}
+
+
+	public Camera startCamera(Camera camera) {
+		return addCamera(camera);
 	}
 
 

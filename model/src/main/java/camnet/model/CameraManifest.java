@@ -61,7 +61,12 @@ public class CameraManifest {
 		String agentServiceEndpointUrl = agentServiceEndpoint.getUrl();
 
 		for (Camera camera : getAllCameras()) {
-			if (camera.getAgentServiceEndpoint().getUrl().equals(agentServiceEndpointUrl)) {
+			AgentServiceEndpoint cameraAgentServiceEndpoint = camera.getAgentServiceEndpoint();
+			if (cameraAgentServiceEndpoint == null) {
+				continue;
+			}
+
+			if (cameraAgentServiceEndpoint.getUrl().equals(agentServiceEndpointUrl)) {
 				cameras.add(camera);
 			}
 		}
@@ -121,6 +126,18 @@ public class CameraManifest {
 		}
 
 		return allCameras;
+	}
+
+	public List<Camera> getLatentCameras() {
+		List<Camera> latentCameras = new ArrayList<>();
+
+		for (Camera camera : getAllCameras()) {
+			if (camera.isLatent()) {
+				latentCameras.add(camera);
+			}
+		}
+
+		return latentCameras;
 	}
 
 	@Override

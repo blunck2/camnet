@@ -48,7 +48,6 @@ public class Agent {
     this.lastHeartBeatEpoch = System.currentTimeMillis();
   }
 
-
   @Override
   public boolean equals(Object obj) {
     if (obj == null) {

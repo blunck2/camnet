@@ -65,6 +65,17 @@ public class Camera {
 		this.agent = agent;
 	}
 
+	public boolean isLatent() {
+		if (lastUpdateEpoch == 0) {
+			return true;
+		}
+
+		long nowEpoch = System.currentTimeMillis();
+		long futureEpoch = lastUpdateEpoch + (sleepTimeInSeconds * 1000);
+
+		return (nowEpoch > futureEpoch);
+	}
+
 	@Override public boolean equals(Object obj) {
    		if (obj == null) { return false; }
    		if (obj == this) { return true; }

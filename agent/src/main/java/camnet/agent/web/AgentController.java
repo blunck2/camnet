@@ -43,7 +43,7 @@ public class AgentController {
   public Camera add(@RequestBody Camera camera) {
     logger.info("adding camera: " + camera);
 
-    cameraManifest.addCamera(camera);
+    engine.startCamera(camera);
 
     return camera;
   }

@@ -2,11 +2,14 @@ package camnet.model;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,28 +130,67 @@ public class AgentManifest {
     return inactiveAgents;
   }
 
-
-  public Agent findAgent(String environment) {
-    List<Agent> possibleAgents = agents.get(environment);
-    if (possibleAgents == null) {
-      possibleAgents = new ArrayList<Agent>();
+  private int chooseRandom(int minimum, int maximum) {
+    if (minimum == maximum) {
+      return minimum;
     }
 
-    if (possibleAgents.size() == 0) {
-      possibleAgents.addAll(getActiveAgents(300));
-    }
+    int randomNumber = ThreadLocalRandom.current().nextInt(minimum, maximum);
+    return randomNumber;
+  }
 
-    for (Agent agent : possibleAgents) {
-      long agentLastCheckInEpoch = agent.getLastHeartBeatEpoch();
-      long nowEpoch = System.currentTimeMillis();
-      long oldAgeTolleranceEpoch = nowEpoch - (10 * 1000);
+  public List<Agent> findActiveAgents() {
+    List<Agent> activeAgents = new ArrayList<>();
 
-      if (agentLastCheckInEpoch > oldAgeTolleranceEpoch) {
-        return agent;
+    for (Agent agent : getAllAgents()) {
+      if (isActive(agent)) {
+        activeAgents.add(agent);
       }
     }
 
-    return null;
+    return activeAgents;
+  }
+
+  public Agent findActiveAgent() throws NoSuchAgentException {
+    List<Agent> activeAgents = getActiveAgents(300);
+
+    if ((activeAgents == null) || (activeAgents.size() == 0)) {
+      throw new NoSuchAgentException("no agents exist");
+    }
+
+    int selectedAgentIndex = chooseRandom(0, activeAgents.size());
+
+    return activeAgents.get(selectedAgentIndex);
+  }
+
+  private boolean isActive(Agent agent) {
+    long lastCheckInEpoch = agent.getLastHeartBeatEpoch();
+    long nowEpoch = System.currentTimeMillis();
+    long oldAgeTolleranceEpoch = nowEpoch - (10 * 1000);
+
+    if (lastCheckInEpoch > oldAgeTolleranceEpoch) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public List<Agent> findActiveAgents(String environment) {
+    Set<Agent> activeAgentsToReturn = new HashSet<>();
+
+    List<Agent> activeAgents = getActiveAgents(300);
+    for (Agent activeAgent : activeAgents) {
+      activeAgentsToReturn.add(activeAgent);
+    }
+
+    if (activeAgentsToReturn.size() == 0) {
+      activeAgentsToReturn.addAll(findActiveAgents());
+    }
+
+
+    List<Agent> toReturn = new ArrayList<>();
+    toReturn.addAll(activeAgentsToReturn);
+    return toReturn;
   }
 
   @Override

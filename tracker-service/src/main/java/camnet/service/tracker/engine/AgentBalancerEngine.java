@@ -3,6 +3,8 @@ package camnet.service.tracker.engine;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.client.RestTemplate;
+
 
 
 import org.slf4j.Logger;
@@ -14,13 +16,16 @@ import camnet.model.Agent;
 import camnet.model.AgentServiceEndpoint;
 import camnet.model.CameraManifest;
 import camnet.model.Camera;
+import camnet.model.NoSuchAgentException;
 import camnet.service.tracker.util.TaskingUtility;
 import camnet.service.tracker.util.TaskingException;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 import static java.util.concurrent.TimeUnit.*;
 
 import javax.annotation.PostConstruct;
@@ -34,6 +39,8 @@ public class AgentBalancerEngine implements Runnable {
 
   @Autowired
   private TrackerEngine trackerEngine;
+
+  private RestTemplate agentService;
 
 
   @Value("${AgentBalancer.CycleTimeInSeconds}")
@@ -49,6 +56,7 @@ public class AgentBalancerEngine implements Runnable {
 
   private Logger logger = LoggerFactory.getLogger(AgentBalancerEngine.class);
 
+
   @PostConstruct
   private void setUp() {
     agentManifest = trackerEngine.getAgentManifest();
@@ -59,6 +67,7 @@ public class AgentBalancerEngine implements Runnable {
 
 
   public AgentBalancerEngine() {
+    agentService = new RestTemplate();
     scheduler = Executors.newScheduledThreadPool(1);
   }
 
@@ -120,82 +129,71 @@ public class AgentBalancerEngine implements Runnable {
 
   public void run() {
     try {
-      reassignCamerasDueToDisconnectedAgent();
-//      reassignDisconnectedCameras();
+      reassignLatentCameras();
     } catch (Throwable t) {
       logger.error("unexpected error occurred rebalancing cameras", t);
     }
   }
 
-  private void reassignCamerasDueToDisconnectedAgent() {
-    logger.info("looking for disconnected agents");
-    logger.trace("agent manifest: " + agentManifest.hashCode());
+  private void reassignLatentCameras() {
+    logger.info("looking for latent cameras");
+    List<Camera> latentCameras = cameraManifest.getLatentCameras();
 
-    // FIXME: change 60 to be some variable that indicates how long we should wait for an agent to time out before we reassign it's cameras
-    List<Agent> inActiveAgents = agentManifest.getInActiveAgents(60);
+    logger.trace("reassigning latent cameras: " + latentCameras);
 
-    logger.trace("disconnected agents: " + inActiveAgents.size());
-
-    for (Agent agent : inActiveAgents) {
-      logger.info("reassigning cameras for agent: " + agent);
-      reassignCamerasDueToDisconnectedAgent(agent);
+    for (Camera camera : latentCameras) {
+      reassignLatentCamera(camera);
     }
+
+    logger.trace("finished reassigning latent cameras");
   }
 
-
-  private void reassignCamerasDueToDisconnectedAgent(Agent disconnectedAgent) {
-    AgentServiceEndpoint disconnectedEndpoint = disconnectedAgent.getServiceEndpoint();
-    if (disconnectedEndpoint == null) {
-      logger.error("the endpoint is null");
+  private int chooseRandom(int minimum, int maximum) {
+    if (minimum == maximum) {
+      return minimum;
     }
 
-    List<Camera> camerasToReassign = cameraManifest.getCamerasForAgentServiceEndpoint(disconnectedEndpoint);
-    logger.trace("cameras to reassign: " + camerasToReassign);
+    int randomNumber = ThreadLocalRandom.current().nextInt(minimum, maximum);
+    return randomNumber;
+  }
 
-    for (Camera cameraToReassign : camerasToReassign) {
-      Agent newAgent = chooseAgent(cameraToReassign.getEnvironment());
-
-      if (newAgent == null) {
-        logger.error("no other agents are available");
-        return;
-      }
-
-      try {
-        TaskingUtility.reassign(cameraToReassign, disconnectedAgent, newAgent, agentManifest, cameraManifest);
-      } catch (TaskingException e) {
-        logger.warn("failed to reassign camera: " + cameraToReassign.getDisplayName());
+  private Agent pickAgent(List<Agent> agents, String environment) {
+    // attempt to find an Agent local to the environment provided
+    for (Agent agent : agents) {
+      List<String> supportedEnvironments = agent.getEnvironments();
+      if (supportedEnvironments.contains(environment)) {
+        return agent;
       }
     }
+
+    // if a local Agent could not be located just pick a random Agent
+    int agentPos = chooseRandom(0, agents.size());
+    return agents.get(agentPos);
   }
 
-
-  private void reassignDisconnectedCameras() {
-    logger.trace("examining manifest: cameras");
-
-    List<Camera> allCameras = cameraManifest.getAllCameras();
-    for (Camera camera : allCameras) {
-      long lastUpdateMillis = camera.getLastUpdateEpoch();
-      long sleepTimeMillis = camera.getSleepTimeInSeconds() * 1000;
-      long now = System.currentTimeMillis();
-
-      if (now > (lastUpdateMillis + sleepTimeMillis)) {
-        //reassignCameraDueToTimeOutFromLocalAgent(camera);
-      }
+  private void reassignLatentCamera(Camera camera) {
+    logger.info("attempting to reassign latent camera: " + camera);
+    String environment = camera.getEnvironment();
+    List<Agent> agents = agentManifest.findActiveAgents(environment);
+    logger.info("available agents that support environment '" + environment + "': " + agents);
+    if (agents.size() == 0) {
+      logger.info("unable to reassign camera '" + camera.getDisplayName() + "' to new agent.  no active agents available.");
+      return;
     }
+
+    Agent agent = pickAgent(agents, environment);
+    logger.info("selected agent: " + agent);
+
+    logger.trace("assigning agent endpoint for camera '" + camera.getDisplayName() + "': " + agent.getServiceEndpoint());
+    camera.setAgentServiceEndpoint(agent.getServiceEndpoint());
+
+    String agentServiceEndpointUrl = agent.getServiceEndpoint().getUrl();
+    String url = agentServiceEndpointUrl + "/agent/camera/add";
+
+    logger.trace("registering POST'ing camera to agent with url: " + url);
+
+    agentService.postForObject(url, camera, Camera.class, new HashMap<String, String>());
   }
 
-
-  private Agent chooseAgent(String environment) {
-    Agent selectedAgent = agentManifest.findAgent(environment);
-
-    /*
-    TODO: if no agents are available for the environment requested then choose an agent that is not local
-    if (selectedAgent == null) {
-      selectedAgent = agentManifest.getActiveAgent();
-    }
-    */
-
-    return selectedAgent;
-  }
 
 }
