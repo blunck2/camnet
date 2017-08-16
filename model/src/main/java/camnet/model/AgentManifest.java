@@ -33,9 +33,7 @@ public class AgentManifest {
   }
 
   public Agent getAgentById(String environment, String id) {
-    logger.trace("looking for agent environment: " + environment + "; id: " + id);
     for (Agent agent : getAgentsForEnvironment(environment)) {
-      logger.trace("got agent environment: " + environment + "; id: " + agent.getId());
       if (id.equals(agent.getId())) {
         return agent;
       }
@@ -120,8 +118,6 @@ public class AgentManifest {
       long nowEpoch = System.currentTimeMillis();
 
       long oldAgeTolleranceEpoch = nowEpoch - (recencyInSeconds * 1000);
-      logger.info("oldAgeTolleranceEpoch: " + oldAgeTolleranceEpoch + "; agentLastCheckInEpoch: " + agentLastCheckInEpoch);
-
       if (agentLastCheckInEpoch < oldAgeTolleranceEpoch) {
         inactiveAgents.add(agent);
       }

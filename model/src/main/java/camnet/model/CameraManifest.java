@@ -29,9 +29,7 @@ public class CameraManifest {
 	}
  
 	public Camera getCameraById(String environment, String id) {
-		logger.trace("looking for camera environment: " + environment + "; id: " + id);
 		for (Camera camera : getCamerasForEnvironment(environment)) {
-			logger.trace("got camera environment: " + camera.getEnvironment() + "; id: " + camera.getId());
 			if (id.equals(camera.getId())) {
 				return camera;
 			}
@@ -138,9 +136,22 @@ public class CameraManifest {
 		return allCameras;
 	}
 
-	private boolean isLatent(Camera camera) {
-		logger.info("camera isLatent?: " + camera);
 
+
+	private boolean isDisconnected(Camera camera, int collectCyclesBeforeCameraIsDisconnected) {
+		long cameraLastUpdateEpoch = camera.getLastUpdateEpoch();
+		if (cameraLastUpdateEpoch == 0) {
+			return false;
+		}
+
+		long nowEpoch = System.currentTimeMillis();
+		long delayInMs = collectCyclesBeforeCameraIsDisconnected * camera.getSleepTimeInSeconds() * 1000;
+		long futureEpoch = cameraLastUpdateEpoch + delayInMs;
+
+		return (nowEpoch > futureEpoch);
+	}
+
+	private boolean isLatent(Camera camera) {
 		long cameraLastUpdateEpoch = camera.getLastUpdateEpoch();
 		if (cameraLastUpdateEpoch == 0) {
 			return true;
@@ -148,8 +159,6 @@ public class CameraManifest {
 
 		long nowEpoch = System.currentTimeMillis();
 		long futureEpoch = cameraLastUpdateEpoch + (camera.getSleepTimeInSeconds() * 1000);
-		logger.info("nowEpoch: " + nowEpoch);
-		logger.info("futureEpoch: " + futureEpoch);
 
 		return (nowEpoch > futureEpoch);
 	}
@@ -165,6 +174,20 @@ public class CameraManifest {
 
 		return latentCameras;
 	}
+
+
+	public List<Camera> getDisconnectedCameras(int collectCyclesBeforeCameraIsDisconnected) {
+		List<Camera> disconnectedCameras = new ArrayList<>();
+
+		for (Camera camera : getAllCameras()) {
+			if (isDisconnected(camera, collectCyclesBeforeCameraIsDisconnected)) {
+				disconnectedCameras.add(camera);
+			}
+		}
+
+		return disconnectedCameras;
+	}
+
 
 	@Override
 	public String toString() {

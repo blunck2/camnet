@@ -82,8 +82,6 @@ public class AgentManifestController {
   public void addAgent(@RequestBody Agent agent) {
     logger.info("adding agent: " + agent);
 
-    logger.info("--------- adding agent to agent manifest with HC: " + manifest.hashCode());
-
     manifest.addAgent(agent);
 
     logger.info("agent manifest size: " + manifest.getAllAgents().size());
@@ -93,8 +91,7 @@ public class AgentManifestController {
   @PostMapping("/agents/environment/{environment}/agent/{agentId}/heartbeat")
   public Agent receiveHeartBeat(@PathVariable("environment") String environment,
                                 @PathVariable("agentId") String agentId) {
-    logger.info("heartbeat received!");
-    logger.info("heartbeat received.  updating agent manifest: " + manifest.hashCode());
+    logger.info("heartbeat received: " + environment + "/" + agentId);
     Agent agent = manifest.getAgentById(environment, agentId);
     agent.heartBeat();
 

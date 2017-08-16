@@ -49,9 +49,6 @@ public class AgentBalancerEngine implements Runnable {
   @Value("${AgentBalancer.CameraCycleMissCountBeforeReassignment}")
   private int cameraCycleMissCountBeforeReassignment;
 
-  @Value("${AgentBalancer.AgentDisconnectedDelayTimeInSeconds}")
-  private int agentDisconnectedDelayTimeInSeconds;
-
   private ScheduledExecutorService scheduler;
 
   private Logger logger = LoggerFactory.getLogger(AgentBalancerEngine.class);
@@ -99,14 +96,6 @@ public class AgentBalancerEngine implements Runnable {
     this.cameraCycleMissCountBeforeReassignment = cameraCycleMissCountBeforeReassignment;
   }
 
-  public int getAgentDisconnectedDelayTimeInSeconds() {
-    return agentDisconnectedDelayTimeInSeconds;
-  }
-
-  public void setAgentDisconnectedDelayTimeInSeconds(int agentDisconnectedDelayTimeInSeconds) {
-    this.agentDisconnectedDelayTimeInSeconds = agentDisconnectedDelayTimeInSeconds;
-  }
-
   public TrackerEngine getTrackerEngine() {
     return trackerEngine;
   }
@@ -129,20 +118,35 @@ public class AgentBalancerEngine implements Runnable {
 
   public void run() {
     try {
-      reassignLatentCameras();
+      rebalanceCameras();
     } catch (Throwable t) {
       logger.error("unexpected error occurred rebalancing cameras", t);
     }
   }
 
+  /**
+   * Rebalances all of the Cameras
+   * This can affect latent cameras or cameras assigned to agents that are no longer active
+   */
+  private void rebalanceCameras() {
+    reassignLatentCameras();
+  }
+
   private void reassignLatentCameras() {
     logger.info("looking for latent cameras");
     List<Camera> latentCameras = cameraManifest.getLatentCameras();
+    logger.trace("latent cameras: " + latentCameras);
 
-    logger.trace("reassigning latent cameras: " + latentCameras);
+    int missCount = cameraCycleMissCountBeforeReassignment;
+    List<Camera> disconnectedCameras = cameraManifest.getDisconnectedCameras(missCount);
+    logger.trace("disconnected cameras: " + disconnectedCameras);
 
-    for (Camera camera : latentCameras) {
-      reassignLatentCamera(camera);
+    List<Camera> camerasToReassign = new ArrayList<>();
+    camerasToReassign.addAll(latentCameras);
+    camerasToReassign.removeAll(disconnectedCameras);
+
+    for (Camera camera : camerasToReassign) {
+      reassignCamera(camera);
     }
 
     logger.trace("finished reassigning latent cameras");
@@ -157,7 +161,7 @@ public class AgentBalancerEngine implements Runnable {
     return randomNumber;
   }
 
-  private Agent pickAgent(List<Agent> agents, String environment) {
+  private Agent pickAgentForEnvironment(List<Agent> agents, String environment) {
     // attempt to find an Agent local to the environment provided
     for (Agent agent : agents) {
       List<String> supportedEnvironments = agent.getEnvironments();
@@ -166,29 +170,54 @@ public class AgentBalancerEngine implements Runnable {
       }
     }
 
-    // if a local Agent could not be located just pick a random Agent
+    return null;
+  }
+
+  private Agent pickRandomAgent(List<Agent> agents) {
+    if (agents.size() == 1) {
+      return agents.get(0);
+    }
+
     int agentPos = chooseRandom(0, agents.size());
     return agents.get(agentPos);
   }
 
-  private void reassignLatentCamera(Camera camera) {
-    logger.info("attempting to reassign latent camera: " + camera);
+
+  private void reassignCamera(Camera camera) {
+    logger.info("attempting to reassign camera: " + camera.getDisplayName());
+
     String environment = camera.getEnvironment();
-    List<Agent> agents = agentManifest.findActiveAgents(environment);
-    logger.info("available agents that support environment '" + environment + "': " + agents);
-    if (agents.size() == 0) {
-      logger.info("unable to reassign camera '" + camera.getDisplayName() + "' to new agent.  no active agents available.");
+
+    List<Agent> activeAgents = new ArrayList<>();
+    activeAgents.addAll(agentManifest.findActiveAgents(environment));
+
+    if (activeAgents.size() == 0) {
+      logger.warn("failed to locate agent in environment: " + environment);
+      logger.warn("adding all active agents for consideration");
+
+      activeAgents.addAll(agentManifest.findActiveAgents());
+    }
+
+    if (activeAgents.size() == 0) {
+      logger.error("no active agents available.  reassignment cannot occur.");
       return;
     }
 
-    Agent agent = pickAgent(agents, environment);
-    logger.info("selected agent: " + agent);
+    logger.info("picking new agent from active agent list: " + activeAgents);
+    Agent newAgent = pickRandomAgent(activeAgents);
+    logger.info("selected agent: " + newAgent);
 
-    logger.trace("assigning agent endpoint for camera '" + camera.getDisplayName() + "': " + agent.getServiceEndpoint());
-    camera.setAgentServiceEndpoint(agent.getServiceEndpoint());
+    AgentServiceEndpoint newAgentServiceEndpoint = newAgent.getServiceEndpoint();
+    if (newAgentServiceEndpoint.equals(camera.getAgentServiceEndpoint())) {
+      logger.info("skipping reassignment.  camera '" + camera.getDisplayName() + "' is already assigned to agent: " + newAgent);
+      return;
+    }
 
-    String agentServiceEndpointUrl = agent.getServiceEndpoint().getUrl();
-    String url = agentServiceEndpointUrl + "/agent/camera/add";
+    logger.trace("assigning agent endpoint for camera '" + camera.getDisplayName() + "': " + newAgent.getServiceEndpoint());
+    camera.setAgentServiceEndpoint(newAgent.getServiceEndpoint());
+
+    String newAgentServiceEndpointUrl = newAgent.getServiceEndpoint().getUrl();
+    String url = newAgentServiceEndpointUrl + "/agent/camera/add";
 
     logger.trace("registering POST'ing camera to agent with url: " + url);
 

@@ -79,12 +79,11 @@ public class ScheduledHeartBeatSender implements Runnable {
   }
 
   private void sendHeartBeat() {
-    logger.info("in sendHeartBeat()");
     String trackerEndpoint = trackerServiceEndpoint.getUrl();
 
     for (String environment : environments) {
       String url = trackerEndpoint + "/manifest/agents/environment/" + environment + "/agent/" + localAgent.getId() + "/heartbeat";
-      logger.info("sending heartbeat: " + url);
+      logger.debug("sending heartbeat: " + url);
 
       ResponseEntity<String> result =
           template.exchange(url,
