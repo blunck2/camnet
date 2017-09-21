@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <Pattern>
+        %white(%d{yyyy-MM-dd HH:mm:ss.SSS}) ${LOG_LEVEL_PATTERN:-%5p} %magenta(${PID:- }) %white(---) %white([%15.15t]) %cyan(%-40.40logger{39}) :%cyan(%-5.5line{4}) %white(%m%n)
+      </Pattern>
+    </layout>
+  </appender>
+
+  <appender name="LOGFILE" class="ch.qos.logback.core.FileAppender">
+    <file>logs/application.log</file>
+
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <Pattern>
+        %white(%d{yyyy-MM-dd HH:mm:ss.SSS}) ${LOG_LEVEL_PATTERN:-%5p} %magenta(${PID:- }) %white(---) %white([%15.15t]) %cyan(%-40.40logger{39}) :%cyan(%-5.5line{4}) %white(%m%n)
+      </Pattern>
+    </layout>
+  </appender>
+
+
+  <logger name="camnet" level="trace" additivity="false">
+    <appender-ref ref="LOGFILE" />
+  </logger>
+
+  <root level="info">
+    <appender-ref ref="STDOUT" />
+  </root>
+
+</configuration>
