@@ -23,6 +23,7 @@
     <guava.version>11.0.2</guava.version>
     <commons-lang.version>3.0</commons-lang.version>
     <json-path.version>2.2.0</json-path.version>
+    <groovy.version>2.4.12</groovy.version>
 
     <java.version>1.8</java.version>
   </properties>
@@ -74,6 +75,11 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>${guava.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.groovy</groupId>
+      <artifactId>groovy</artifactId>
+      <version>${groovy.version}</version>
     </dependency>
 
     <dependency>

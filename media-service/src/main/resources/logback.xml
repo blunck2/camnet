@@ -2,6 +2,12 @@
 <configuration>
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>INFO</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+
     <layout class="ch.qos.logback.classic.PatternLayout">
       <Pattern>
         %white(%d{yyyy-MM-dd HH:mm:ss.SSS}) ${LOG_LEVEL_PATTERN:-%5p} %magenta(${PID:- }) %white(---) %white([%15.15t]) %cyan(%-40.40logger{39}) :%cyan(%-5.5line{4}) %white(%m%n)
@@ -12,6 +18,36 @@
   <appender name="LOGFILE" class="ch.qos.logback.core.FileAppender">
     <file>logs/application.log</file>
 
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>TRACE</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>DEBUG</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>INFO</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>WARN</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>ERROR</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+
     <layout class="ch.qos.logback.classic.PatternLayout">
       <Pattern>
         %white(%d{yyyy-MM-dd HH:mm:ss.SSS}) ${LOG_LEVEL_PATTERN:-%5p} %magenta(${PID:- }) %white(---) %white([%15.15t]) %cyan(%-40.40logger{39}) :%cyan(%-5.5line{4}) %white(%m%n)
@@ -19,20 +55,9 @@
     </layout>
   </appender>
 
-
-  <!--
-    order is significant!
-
-    log (and remove) TRACE and DEBUG level messages to the LOGFILE
-    log INFO level messages (and WARN/ERROR) to STDOUT
-  -->
-  <logger name="camnet" level="TRACE" additivity="false">
-    <appender-ref ref="LOGFILE"/>
-  </logger>
   <root level="INFO">
     <appender-ref ref="STDOUT" />
+    <appender-ref ref="LOGFILE" />
   </root>
-
-
 
 </configuration>
