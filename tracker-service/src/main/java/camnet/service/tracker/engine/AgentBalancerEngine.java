@@ -133,7 +133,7 @@ public class AgentBalancerEngine implements Runnable {
   }
 
   private void reassignLatentCameras() {
-    logger.info("looking for latent cameras");
+    logger.trace("reassigning latent cameras...");
     List<Camera> latentCameras = cameraManifest.getLatentCameras();
     logger.trace("latent cameras: " + latentCameras);
 
@@ -184,7 +184,7 @@ public class AgentBalancerEngine implements Runnable {
 
 
   private void reassignCamera(Camera camera) {
-    logger.info("attempting to reassign camera: " + camera.getDisplayName());
+    logger.trace("attempting to reassign camera: " + camera.getDisplayName());
 
     String environment = camera.getEnvironment();
 
@@ -205,11 +205,11 @@ public class AgentBalancerEngine implements Runnable {
 
     logger.info("picking new agent from active agent list: " + activeAgents);
     Agent newAgent = pickRandomAgent(activeAgents);
-    logger.info("selected agent: " + newAgent);
+    logger.trace("selected agent: " + newAgent);
 
     AgentServiceEndpoint newAgentServiceEndpoint = newAgent.getServiceEndpoint();
     if (newAgentServiceEndpoint.equals(camera.getAgentServiceEndpoint())) {
-      logger.info("skipping reassignment.  camera '" + camera.getDisplayName() + "' is already assigned to agent: " + newAgent);
+      logger.trace("skipping reassignment.  camera '" + camera.getDisplayName() + "' is already assigned to agent: " + newAgent);
       return;
     }
 

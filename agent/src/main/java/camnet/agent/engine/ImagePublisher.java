@@ -83,7 +83,7 @@ public class ImagePublisher {
 		HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = 
 			new HttpEntity<LinkedMultiValueMap<String, Object>>(map, headers);
 
-		logger.trace(camera.getDisplayName() + " POSTing image");
+		logger.info(camera.getDisplayName() + " POSTing image");
 		ResponseEntity<String> result =
 			template.exchange(url, 
 							  HttpMethod.POST, 

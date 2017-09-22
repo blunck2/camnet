@@ -20,13 +20,19 @@
   </appender>
 
 
-  <logger name="camnet" level="trace" additivity="false">
-    <appender-ref ref="LOGFILE" />
-  </logger>
+  <!--
+    order is significant!
 
-  <root level="info">
+    log (and remove) TRACE and DEBUG level messages to the LOGFILE
+    log INFO level messages (and WARN/ERROR) to STDOUT
+  -->
+  <logger name="camnet" level="TRACE" additivity="false">
+    <appender-ref ref="LOGFILE"/>
+  </logger>
+  <root level="INFO">
     <appender-ref ref="STDOUT" />
-    <appender-ref ref="LOGFILE" />
   </root>
+
+
 
 </configuration>
